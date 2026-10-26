@@ -1,0 +1,72 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/sponsors",
+      "destination": "/partners",
+      "permanent": true
+    },
+    {
+      "source": "/join-nabme-2",
+      "destination": "/join",
+      "permanent": true
+    },
+    {
+      "source": "/mission-and-values",
+      "destination": "/mission",
+      "permanent": true
+    },
+    {
+      "source": "/board-members",
+      "destination": "/founders",
+      "permanent": true
+    },
+    {
+      "source": "/nabme-fellowship-program",
+      "destination": "/athari",
+      "permanent": true
+    },
+    {
+      "source": "/resumes",
+      "destination": "/resume-bank",
+      "permanent": true
+    },
+    {
+      "source": "/give",
+      "destination": "/donate",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/nabme-careersw",
+      "destination": "/careers",
+      "permanent": true
+    },
+    {
+      "source": "/talent-portal",
+      "destination": "/talent",
+      "permanent": true
+    },
+    {
+      "source": "/register",
+      "destination": "/summit#notify-form",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}
