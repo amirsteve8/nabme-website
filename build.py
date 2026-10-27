@@ -85,7 +85,7 @@ SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be anno
     ("Saturday", "Feb 13", "Black Male Educator Capital Summit", "A full day of keynotes, breakouts and brotherhood at Howard University."),
 ]
 SUMMIT_FEE = "$100"
-SUMMIT_PAY_URL = ""  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
+SUMMIT_PAY_URL = "https://www.paypal.com/ncp/payment/NHRTEGF92R54N"  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
 HOWARD_LOGO = "assets/logos/howard.png"  # shown in the Summit banner when the file exists
 
 SOCIAL = [
