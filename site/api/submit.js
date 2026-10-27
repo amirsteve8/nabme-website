@@ -42,6 +42,19 @@ export async function POST(request) {
     const made = await fetch(`https://api.airtable.com/v0/meta/bases/${base}/tables`, { method: "POST", headers, body: JSON.stringify({ name: tableName, fields: columns(table) }) });
     if (made.ok) res = await save();
     else console.error("Could not create table", tableName, made.status, await made.text());
+  } else if (res.status === 422) {
+    // A question added to an existing form: create the missing columns once, then save again
+    const meta = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
+    const tables = await fetch(meta, { headers }).then((r) => r.json()).catch(() => ({}));
+    const found = tables.tables?.find((t) => t.name === tableName);
+    if (found) {
+      const have = new Set(found.fields.map((f) => f.name));
+      for (const col of columns(table).filter((c) => !have.has(c.name))) {
+        const r = await fetch(`${meta}/${found.id}/fields`, { method: "POST", headers, body: JSON.stringify(col) });
+        if (!r.ok) console.error("Could not add column", tableName, col.name, r.status, await r.text());
+      }
+      res = await save();
+    }
   }
   if (!res.ok) {
     console.error("Airtable save failed", res.status, await res.text());

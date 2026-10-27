@@ -1358,6 +1358,7 @@ def build_summit_register():
     {field("Phone", "phone", "tel", auto="tel")}
     {field("City, State", "city", required=True, auto="address-level2", placeholder="Washington, DC")}
     {field("School or organization", "org", required=True, auto="organization")}
+    {field("Do you work at the K–12 or collegiate level?", "level", required=True, options=["K–12", "Collegiate (college or university)"])}
     {role_field()}
     {field("Years in education", "years", required=True, options=["0–3 years", "4–7 years", "8–12 years", "13+ years", "Not yet in education"])}
     {field("Did you attend the 2026 Summit?", "attended_2026", required=True, options=["Yes", "No"])}

@@ -42,7 +42,7 @@ export const TABLES = {
     fields: [
       ["name", "Name", "text"], ["email", "Email", "email"], ["phone", "Phone", "phone"],
       ["org", "School or organization", "text"], ["role", "Role", "text"], ["role_other", "Role (other)", "text"],
-      ["city", "City, State", "text"], ["years", "Years in education", "text"],
+      ["city", "City, State", "text"], ["level", "Level (K-12 or collegiate)", "text"], ["years", "Years in education", "text"],
       ["days", "Days attending", "long"], ["attended_2026", "Attended the 2026 Summit", "text"],
       ["shirt", "T-shirt size", "text"], ["dietary", "Dietary needs", "text"], ["access", "Accessibility needs", "text"],
       ["heard", "How they heard", "text"], ["photo_consent", "Photo consent", "text"],
