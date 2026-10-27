@@ -186,6 +186,11 @@
   // ---------- Forms (front end only until connected to NABME's email tool / CRM) ----------
   const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
   const validateField = (field) => {
+    if (field.hasAttribute("data-required-group")) { // a set of checkboxes where at least one must be ticked
+      const ok = $$("input[type=checkbox]", field).some((b) => b.checked);
+      field.classList.toggle("is-invalid", !ok);
+      return ok;
+    }
     const input = $("input, select, textarea", field);
     if (!input) return true;
     let ok = true;

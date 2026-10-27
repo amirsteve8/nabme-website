@@ -1,7 +1,7 @@
 // Receives every website form and saves it to NABME's Airtable base.
 // Needs two environment variables in Vercel: AIRTABLE_TOKEN and AIRTABLE_BASE_ID.
 // Optional email alerts: RESEND_API_KEY, NOTIFY_FROM (a verified sender) and NOTIFY_TO (defaults to info@nabme.org).
-import { TABLES, MAX_FILE_BYTES } from "./_schema.js";
+import { TABLES, MAX_FILE_BYTES, columns } from "./_schema.js";
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
@@ -34,11 +34,15 @@ export async function POST(request) {
   }
 
   const api = `https://api.airtable.com/v0/${base}/${encodeURIComponent(tableName)}`;
-  const res = await fetch(api, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: JSON.stringify({ records: [{ fields }], typecast: true }),
-  });
+  const headers = { Authorization: `Bearer ${token}`, "content-type": "application/json" };
+  const save = () => fetch(api, { method: "POST", headers, body: JSON.stringify({ records: [{ fields }], typecast: true }) });
+  let res = await save();
+  if (res.status === 404 || res.status === 403) {
+    // A form added after setup: create its table once, then save again
+    const made = await fetch(`https://api.airtable.com/v0/meta/bases/${base}/tables`, { method: "POST", headers, body: JSON.stringify({ name: tableName, fields: columns(table) }) });
+    if (made.ok) res = await save();
+    else console.error("Could not create table", tableName, made.status, await made.text());
+  }
   if (!res.ok) {
     console.error("Airtable save failed", res.status, await res.text());
     return json({ ok: false, error: "We couldn't save this right now." }, 502);

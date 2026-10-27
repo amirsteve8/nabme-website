@@ -54,7 +54,7 @@
     },
     {
       "source": "/register",
-      "destination": "/summit#notify-form",
+      "destination": "/summit/register",
       "permanent": false
     }
   ],

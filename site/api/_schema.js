@@ -37,6 +37,17 @@ export const TABLES = {
       ["desc", "Description", "long"], ["apply", "How to apply", "text"], ["deadline", "Application deadline", "text"], ["logo", "Logo", "file"],
     ],
   },
+  "Summit Registrations": {
+    status: ["Pending payment", "Paid", "Waitlist", "Cancelled"],
+    fields: [
+      ["name", "Name", "text"], ["email", "Email", "email"], ["phone", "Phone", "phone"],
+      ["org", "School or organization", "text"], ["role", "Role", "text"], ["role_other", "Role (other)", "text"],
+      ["city", "City, State", "text"], ["years", "Years in education", "text"],
+      ["days", "Days attending", "long"], ["attended_2026", "Attended the 2026 Summit", "text"],
+      ["shirt", "T-shirt size", "text"], ["dietary", "Dietary needs", "text"], ["access", "Accessibility needs", "text"],
+      ["heard", "How they heard", "text"], ["photo_consent", "Photo consent", "text"],
+    ],
+  },
   "Athari Interest": {
     fields: [["name", "Name", "text"], ["email", "Email", "email"], ["school", "School", "text"], ["role", "Role", "text"], ["years", "Years in education", "text"]],
   },
@@ -61,3 +72,16 @@ export const TABLES = {
 };
 
 export const MAX_FILE_BYTES = 4 * 1024 * 1024; // keeps a whole submission under Vercel's 4.5 MB request limit
+
+// Airtable column definitions for a table: used by the setup script and to create a missing table on first use
+const TYPES = {
+  text: { type: "singleLineText" }, long: { type: "multilineText" }, email: { type: "email" },
+  phone: { type: "phoneNumber" }, url: { type: "url" }, file: { type: "multipleAttachments" },
+};
+export function columns(def) {
+  const cols = def.fields.map(([, name, type]) => ({ name, ...TYPES[type] }));
+  if (def.status) cols.push({ name: "Status", type: "singleSelect", options: { choices: def.status.map((name) => ({ name })) } });
+  cols.push({ name: "Page", type: "url" });
+  cols.push({ name: "Submitted at", type: "dateTime", options: { dateFormat: { name: "us" }, timeFormat: { name: "12hour" }, timeZone: "America/New_York" } });
+  return cols;
+}

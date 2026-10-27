@@ -84,7 +84,8 @@ SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be anno
     ("Friday", "Feb 12", "Black Boy Hackathon", "Students and educators build solutions together."),
     ("Saturday", "Feb 13", "Black Male Educator Capital Summit", "A full day of keynotes, breakouts and brotherhood at Howard University."),
 ]
-SUMMIT_REGISTER = ""  # paste the Summit registration/payment link here to show a "Register" button
+SUMMIT_FEE = "$100"
+SUMMIT_PAY_URL = ""  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
 HOWARD_LOGO = "assets/logos/howard.png"  # shown in the Summit banner when the file exists
 
 SOCIAL = [
@@ -249,7 +250,7 @@ def summit_days(heading_tag="h3"):
 
 def summit_announce():
     return f'''<section class="section band-dark summit-announce" aria-labelledby="sa-h"><div class="wrap">
-  <div class="section-head section-head--row"><div><p class="eyebrow">Summit 2027 · Save the dates</p><h2 id="sa-h" class="h2">{SUMMIT_DATES} <span class="red">·</span> Washington, D.C.</h2><p class="lede" style="margin-top:12px">Three days. One movement. The Black Male Educator Capital Summit grows into a full week of action.</p></div>{countdown_block(btn("Get notified", "/summit#notify-form", "red"))}</div>
+  <div class="section-head section-head--row"><div><p class="eyebrow">Summit 2027 · Save the dates</p><h2 id="sa-h" class="h2">{SUMMIT_DATES} <span class="red">·</span> Washington, D.C.</h2><p class="lede" style="margin-top:12px">Three days. One movement. The Black Male Educator Capital Summit grows into a full week of action.</p></div>{countdown_block(summit_register_btn("red"))}</div>
   {summit_days()}
 </div></section>'''
 
@@ -261,11 +262,11 @@ def howard_mark():
 
 
 def summit_register_btn(kind="light"):
-    return btn("Register for the Summit", SUMMIT_REGISTER, kind, True, EXT) if SUMMIT_REGISTER else ""
+    return btn("Register now", "/summit/register", kind)
 
 
 def summit_banner(heading_tag="h2"):
-    return f'''<div class="summit-banner summit-banner--soon"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University. Registration opens soon. Be the first to know.</p><form class="inline-form" data-inline data-table="Summit Interest" data-source="summit-banner" data-done="You're on the list" data-thanks="We'll email you the moment 2027 details drop." style="margin-top:22px"><label class="sr" for="em-soon-{heading_tag}">Email address</label><input id="em-soon-{heading_tag}" type="email" name="email" placeholder="you@school.org" autocomplete="email" required><button class="btn btn--red" type="submit">Notify me</button></form><p class="inline-msg" aria-live="polite"></p>{f'<div class="btn-row" style="margin-top:16px">{summit_register_btn()}</div>' if SUMMIT_REGISTER else ""}</div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>Scan to register</b>Point your phone's camera at the code.</p></div></div></div>'''
+    return f'''<div class="summit-banner summit-banner--soon" id="register"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University.</p><p class="summit-fee"><b>Registration is open.</b> {SUMMIT_FEE} per educator.</p><div class="btn-row" style="margin-top:20px">{summit_register_btn("red")}</div></div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>Scan to register</b>Point your phone's camera at the code.</p></div></div></div>'''
 
 
 def impact_band():
@@ -1258,8 +1259,8 @@ def build_summit():
 <section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
   {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
   <h1>The Black Male Educator <span class="red">Capital Summit</span></h1>
-  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. Registration opens soon.</p>
-  <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}{btn("Get notified", "#notify-form", "light" if SUMMIT_REGISTER else "red")}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
+  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. Registration is open: {SUMMIT_FEE} per educator.</p>
+  <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
 </div></section>
 
 <section class="section band-dark" aria-labelledby="days-h"><div class="wrap">
@@ -1324,9 +1325,53 @@ def build_summit():
   <div class="metric metric--dark" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)"><span class="metric__num" data-count="120" data-suffix="+">120+</span><span class="metric__label">Educators were waitlisted for the inaugural Summit. Help us make room.</span></div>
 </div></div></section>
 
-{closing("See you at Howard.", "Summit 2027 info coming soon.", summit_register_btn() + btn("Get notified", "#notify-form", "light") + btn("Become a sponsor", "#sponsor", "ghost", False))}
+{closing("See you at Howard.", SUMMIT_DATES + " · Washington, D.C.", summit_register_btn("light") + btn("Become a sponsor", "#sponsor", "ghost", False))}
 <dialog id="film" aria-label="The 2026 Black Male Educator Summit recap"><div class="dialog-bar"><span>The 2026 Black Male Educator Summit</span><button class="dialog-close" type="button" data-close aria-label="Close film">{ic("x")}</button></div><div class="film"><iframe title="The 2026 Black Male Educator Summit recap" data-src="{FULL_FILM}" src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe></div></dialog>'''
     page("/summit", "The Black Male Educator Capital Summit", "The Black Male Educator Capital Summit: relive 2026 and get notified when Summit 2027 details are released.", body, "programs")
+
+
+def build_summit_register():
+    days = [f"{w}, {d}: {t}" for w, d, t, _ in SUMMIT_DAYS]
+    day_boxes = "".join(f'<label class="check"><input type="checkbox" name="days" value="{e(x)}" checked> {e(x)}</label>' for x in days)
+    pay = SUMMIT_PAY_URL
+    note = ("After you submit, you'll continue to PayPal to pay the " + SUMMIT_FEE + " registration fee with a card or your PayPal account.") if pay else ("After you submit, NABME will email you a secure link to pay the " + SUMMIT_FEE + " registration fee.")
+    body = f'''
+<section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
+  <p class="crumbs"><a href="/summit" style="color:#fff">The Capital Summit</a> / Register</p>
+  {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
+  <h1>Register for the <span class="red">Capital Summit</span></h1>
+  <p class="lede">Three days of advocacy, innovation and brotherhood. Registration is {SUMMIT_FEE} per educator.</p>
+</div></section>
+
+<section class="section"><div class="wrap reg-layout">
+  <aside class="reg-aside">
+    <div class="reg-fee"><span>Registration</span><b>{SUMMIT_FEE}</b><small>per educator</small></div>
+    <h2 class="h2" style="font-size:1.4rem;margin:26px 0 14px">What's happening</h2>
+    <ul class="reg-days">{"".join(f'<li><span>{w} · {d}</span><b>{t}</b><p>{x}</p></li>' for w, d, t, x in SUMMIT_DAYS)}</ul>
+    <p class="source" style="margin-top:14px">More events will be announced soon. Saturday's Summit is at Howard University.</p>
+    <p class="source" style="margin-top:14px">Questions? Email info@nabme.org.</p>
+  </aside>
+  <div class="form-panel form-wrap"><form class="form" data-form="Summit Registrations"{f' data-redirect="{pay}"' if pay else ""}><div class="form-grid">
+    <h2 class="field--full" style="font-size:1.25rem">About you</h2>
+    {field("Full name", "name", required=True, auto="name")}
+    {field("Email", "email", "email", required=True, auto="email")}
+    {field("Phone", "phone", "tel", auto="tel")}
+    {field("City, State", "city", required=True, auto="address-level2", placeholder="Washington, DC")}
+    {field("School or organization", "org", required=True, auto="organization")}
+    {role_field()}
+    {field("Years in education", "years", required=True, options=["0–3 years", "4–7 years", "8–12 years", "13+ years", "Not yet in education"])}
+    {field("Did you attend the 2026 Summit?", "attended_2026", required=True, options=["Yes", "No"])}
+    <h2 class="field--full" style="font-size:1.25rem;margin-top:10px">Your Summit</h2>
+    <fieldset class="field field--full" data-required-group><legend>Which days will you attend?</legend><div class="checks" style="grid-template-columns:1fr">{day_boxes}</div><span class="err">Choose at least one day.</span></fieldset>
+    {field("T-shirt size", "shirt", required=True, options=["S", "M", "L", "XL", "2XL", "3XL", "4XL"])}
+    {field("How did you hear about the Summit?", "heard", options=["NABME email", "Instagram", "Facebook", "LinkedIn", "A colleague", "My school or district", "Attended in 2026", "Other"])}
+    {field("Dietary needs", "dietary", placeholder="Vegetarian, allergies, etc.")}
+    {field("Accessibility needs", "access", placeholder="Anything that helps you take part fully")}
+    <div class="field field--full"><label class="check"><input type="checkbox" name="photo_consent" value="yes"> NABME may use photos and video of me from the Summit.</label></div>
+  </div><p class="form-note">{note}</p><div><button class="btn btn--red" type="submit">{"Continue to payment" if pay else "Register"} {ARROW}</button></div></form>
+  {success("You're registered.", ("Your spot is saved. Complete your " + SUMMIT_FEE + " payment on PayPal to confirm it.") if pay else ("Your spot is saved. Watch your inbox: NABME will email your " + SUMMIT_FEE + " payment link and Summit details."), btn("Back to the Summit", "/summit", "outline"))}</div>
+</div></section>'''
+    page("/summit/register", "Register for the Capital Summit", "Register for the 2027 Black Male Educator Capital Summit, February 11–13 in Washington, D.C. Registration is " + SUMMIT_FEE + ".", body, "programs")
 
 
 def build_nominate():
@@ -1359,7 +1404,7 @@ def write_support_files():
         "trailingSlash": False,
         # /register is the printed QR code's target: a temporary redirect, so it can point at the live registration page later
         "redirects": [{"source": s, "destination": d, "permanent": True} for s, d in redirects]
-                     + [{"source": "/register", "destination": SUMMIT_REGISTER or "/summit#notify-form", "permanent": False}],
+                     + [{"source": "/register", "destination": "/summit/register", "permanent": False}],
         "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}],
     }
     open(os.path.join(OUT, "vercel.json"), "w").write(json.dumps(vercel, indent=2))
@@ -1377,6 +1422,6 @@ if __name__ == "__main__":
     build_home(); build_mission(); build_founders(); build_bios(); build_join(); build_contact()
     build_careers(); build_talent(); build_resume_bank(); build_employers(); build_jobs(); build_post_job()
     build_donate(); build_media(); build_blog(); build_events(); build_live(); build_partners()
-    build_athari(); build_summit(); build_nominate(); build_impact()
+    build_athari(); build_summit(); build_nominate(); build_impact(); build_summit_register()
     write_support_files()
     print("built", len([f for f in os.listdir(OUT) if f.endswith(".html")]), "pages into", OUT)

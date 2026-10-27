@@ -3,24 +3,12 @@
 // Run from the nabme-v3 folder:
 //   AIRTABLE_TOKEN=your_token AIRTABLE_BASE_ID=appXXXXXXXX node scripts/setup-airtable.mjs
 // The token needs these scopes: schema.bases:read, schema.bases:write, data.records:write.
-import { TABLES } from "../site/api/_schema.js";
+import { TABLES, columns } from "../site/api/_schema.js";
 
 const token = process.env.AIRTABLE_TOKEN, base = process.env.AIRTABLE_BASE_ID;
 if (!token || !base) { console.error("Set AIRTABLE_TOKEN and AIRTABLE_BASE_ID first."); process.exit(1); }
 const meta = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
 const headers = { Authorization: `Bearer ${token}`, "content-type": "application/json" };
-
-const TYPES = {
-  text: { type: "singleLineText" }, long: { type: "multilineText" }, email: { type: "email" },
-  phone: { type: "phoneNumber" }, url: { type: "url" }, file: { type: "multipleAttachments" },
-};
-function columns(def) {
-  const cols = def.fields.map(([, name, type]) => ({ name, ...TYPES[type] }));
-  if (def.status) cols.push({ name: "Status", type: "singleSelect", options: { choices: def.status.map((name) => ({ name })) } });
-  cols.push({ name: "Page", type: "url" });
-  cols.push({ name: "Submitted at", type: "dateTime", options: { dateFormat: { name: "us" }, timeFormat: { name: "12hour" }, timeZone: "America/New_York" } });
-  return cols;
-}
 
 const existing = await fetch(meta, { headers }).then((r) => r.json());
 if (existing.error) { console.error("Airtable said:", existing.error); process.exit(1); }
