@@ -99,7 +99,7 @@ NAV = [
     ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C.")]),
     ("Careers", "careers", [("Talent Portal", "/talent", "One portal, three ways in"), ("Resume Bank", "/resume-bank", "Free educator profile"), ("Employer Access", "/employers", "Search the talent"), ("Job Board", "/jobs", "Open positions")]),
     ("NABME News", "news", [("Blog", "/blog", "NABME Voices"), ("Media", "/media", "Coverage of NABME"), ("Events", "/events", "Upcoming and past"), ("NABME Live", "/live", "The movement, in real time")]),
-    ("Partners", "partners", [("Partners", "/partners", "Who we build alongside"), ("Funders", "/partners#funders", "Who supports the work")]),
+    ("Partners", "partners", [("Partners & Funders", "/partners", "Who we build alongside and who supports the work")]),
     ("Join Us", "join", [("Join NABME", "/join", "Become part of the movement"), ("Contact Us", "/contact", "Questions and inquiries")]),
 ]
 
