@@ -77,7 +77,13 @@ REPORTS = {  # full decks, shared from NABME's Drive (viewable and downloadable)
     "summit": ("Black Male Educator Capital Summit Impact Report", "2026", "https://drive.google.com/file/d/1H1-17VrmlwpWDBQtUSE9XdSROzqbAvpx/view"),
 }
 PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=R6A7JGUC8FP32"
-SUMMIT_START = "2027-02-12T08:00:00-05:00"  # not shown until 2027 details are released
+SUMMIT_START = "2027-02-11T08:00:00-05:00"  # countdown target: day one of Summit 2027
+SUMMIT_DATES = "February 11–13, 2027"
+SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be announced later
+    ("Thursday", "Feb 11", "Capitol Hill Fly-In", "Black male educators take their voice to policymakers on Capitol Hill."),
+    ("Friday", "Feb 12", "Black Boy Hackathon", "Students and educators build solutions together."),
+    ("Saturday", "Feb 13", "Black Male Educator Capital Summit", "A full day of keynotes, breakouts and brotherhood at Howard University."),
+]
 SUMMIT_REGISTER = ""  # paste the Summit registration/payment link here to show a "Register" button
 HOWARD_LOGO = "assets/logos/howard.png"  # shown in the Summit banner when the file exists
 
@@ -90,7 +96,7 @@ SOCIAL = [
 
 NAV = [
     ("Who We Are", "who", [("Mission & Values", "/mission", "Mission, vision and core beliefs"), ("Founders", "/founders", "The people behind the mission"), ("Our Impact", "/impact", "Impact reports, 2016–2026")]),
-    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "2026 recap · 2027 info coming soon")]),
+    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C.")]),
     ("Careers", "careers", [("Talent Portal", "/talent", "One portal, three ways in"), ("Resume Bank", "/resume-bank", "Free educator profile"), ("Employer Access", "/employers", "Search the talent"), ("Job Board", "/jobs", "Open positions")]),
     ("NABME News", "news", [("Blog", "/blog", "NABME Voices"), ("Media", "/media", "Coverage of NABME"), ("Events", "/events", "Upcoming and past"), ("NABME Live", "/live", "The movement, in real time")]),
     ("Partners", "partners", [("Partners", "/partners", "Who we build alongside"), ("Funders", "/partners#funders", "Who supports the work")]),
@@ -233,7 +239,19 @@ def closing(title, text, buttons):
 def countdown_block(primary=None, buttons=True):
     primary = btn("Get notified", "#notify", "red") if primary is None else primary
     row = f'<div class="btn-row">{primary}{btn("Become a sponsor", "/summit#sponsor", "ghost", False)}</div>' if buttons else ""
-    return f'''<div class="countdown-wrap"><div class="countdown" data-countdown="{SUMMIT_START}" role="timer" aria-label="Countdown to the Summit on February 12, 2027"><div><b data-d>–</b><span>Days</span></div><div><b data-h>–</b><span>Hours</span></div><div><b data-m>–</b><span>Minutes</span></div><div><b data-s>–</b><span>Seconds</span></div></div>{row}</div>'''
+    return f'''<div class="countdown-wrap"><div class="countdown" data-countdown="{SUMMIT_START}" role="timer" aria-label="Countdown to Summit 2027, which starts February 11, 2027"><div><b data-d>–</b><span>Days</span></div><div><b data-h>–</b><span>Hours</span></div><div><b data-m>–</b><span>Minutes</span></div><div><b data-s>–</b><span>Seconds</span></div></div>{row}</div>'''
+
+
+def summit_days(heading_tag="h3"):
+    cards = "".join(f'<article class="day{" day--red" if i == 2 else ""}"><p class="day__when">{w} · {d}</p><{heading_tag}>{t}</{heading_tag}><p>{x}</p></article>' for i, (w, d, t, x) in enumerate(SUMMIT_DAYS))
+    return f'<div class="days">{cards}</div><p class="days-note">More events will be announced soon.</p>'
+
+
+def summit_announce():
+    return f'''<section class="section band-dark summit-announce" aria-labelledby="sa-h"><div class="wrap">
+  <div class="section-head section-head--row"><div><p class="eyebrow">Summit 2027 · Save the dates</p><h2 id="sa-h" class="h2">{SUMMIT_DATES} <span class="red">·</span> Washington, D.C.</h2><p class="lede" style="margin-top:12px">Three days. One movement. The Black Male Educator Capital Summit grows into a full week of action.</p></div>{countdown_block(btn("Get notified", "/summit#notify-form", "red"))}</div>
+  {summit_days()}
+</div></section>'''
 
 
 def howard_mark():
@@ -247,7 +265,7 @@ def summit_register_btn(kind="light"):
 
 
 def summit_banner(heading_tag="h2"):
-    return f'''<div class="summit-banner summit-banner--soon"><div><p class="eyebrow">Summit 2027 · Info coming soon</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Dates, speakers and registration are on the way. Be the first to know.</p><form class="inline-form" data-inline data-table="Summit Interest" data-source="summit-banner" data-done="You're on the list" data-thanks="We'll email you the moment 2027 details drop." style="margin-top:22px"><label class="sr" for="em-soon-{heading_tag}">Email address</label><input id="em-soon-{heading_tag}" type="email" name="email" placeholder="you@school.org" autocomplete="email" required><button class="btn btn--red" type="submit">Notify me</button></form><p class="inline-msg" aria-live="polite"></p>{f'<div class="btn-row" style="margin-top:16px">{summit_register_btn()}</div>' if SUMMIT_REGISTER else ""}</div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>Scan to register</b>Point your phone's camera at the code.</p></div></div></div>'''
+    return f'''<div class="summit-banner summit-banner--soon"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University. Registration opens soon. Be the first to know.</p><form class="inline-form" data-inline data-table="Summit Interest" data-source="summit-banner" data-done="You're on the list" data-thanks="We'll email you the moment 2027 details drop." style="margin-top:22px"><label class="sr" for="em-soon-{heading_tag}">Email address</label><input id="em-soon-{heading_tag}" type="email" name="email" placeholder="you@school.org" autocomplete="email" required><button class="btn btn--red" type="submit">Notify me</button></form><p class="inline-msg" aria-live="polite"></p>{f'<div class="btn-row" style="margin-top:16px">{summit_register_btn()}</div>' if SUMMIT_REGISTER else ""}</div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>Scan to register</b>Point your phone's camera at the code.</p></div></div></div>'''
 
 
 def impact_band():
@@ -441,6 +459,8 @@ def build_home():
   </div>
 </section>
 
+{summit_announce()}
+
 <section class="tiles" aria-label="Get involved">
   <a class="tile" href="/join"><span class="tile__label">Join the movement</span><h2>Become a member {ARROW}</h2><p>Connect with Black male educators across the country.</p></a>
   <a class="tile" href="/donate"><span class="tile__label">Support the work</span><h2>Give to NABME {ARROW}</h2><p>Put more Black men at the front of the classroom.</p></a>
@@ -460,7 +480,7 @@ def build_home():
   <div class="section-head">{eyebrow("Our programs")}<h2 id="prog-h" class="h2">Where the pipeline gets built.</h2></div>
   <div class="programs">
     <a class="program" href="/athari">{img("p_talk", pos="center 30%")}<div class="program__body"><span class="program__kicker">Flagship leadership program</span><h3>The Athari Fellowship</h3><p class="program__proof">31 Fellows. 100% retained. 83% in leadership.</p><span class="more">Explore the Fellowship {ARROW}</span></div></a>
-    <a class="program" href="/summit">{img("s26_aerial", pos="center 45%")}<div class="program__body"><span class="program__kicker">Summit 2027 · Info coming soon</span><h3>The Black Male Educator Capital Summit</h3><p class="program__proof">See you at Howard University</p><span class="more">Relive the 2026 Summit {ARROW}</span></div></a>
+    <a class="program" href="/summit">{img("s26_aerial", pos="center 45%")}<div class="program__body"><span class="program__kicker">Summit 2027 · {SUMMIT_DATES}</span><h3>The Black Male Educator Capital Summit</h3><p class="program__proof">See you at Howard University</p><span class="more">Relive the 2026 Summit {ARROW}</span></div></a>
   </div>
 </div></section>
 
@@ -832,14 +852,13 @@ def build_donate():
     body = f'''
 <section class="phero phero--split"><div class="wrap">
   <div>{eyebrow("Donate")}<h1>NABME needs <span class="red">your help</span>.</h1><p class="lede">When you invest in NABME, you are investing in changing the lives of millions of marginalized children across the world. NABME aspires to dramatically increase the number of highly effective Black and Brown male educators who positively impact the children that they serve. Your gift will help us get this done.</p></div>
-  <div class="form-panel form-wrap" id="give"><form class="form" data-form="Donations">
+  <div class="form-panel form-wrap" id="give"><form class="form" data-form="Donations" data-redirect="{PAYPAL}">
     <fieldset class="field"><legend>Frequency</legend><div class="checks"><label class="check"><input type="radio" name="freq" value="monthly" checked> Monthly</label><label class="check"><input type="radio" name="freq" value="once"> One time</label></div></fieldset>
     <fieldset class="field"><legend>Amount</legend><div class="checks" style="grid-template-columns:repeat(4,minmax(0,1fr))">{amounts}</div></fieldset>
     {field("Other amount", "other", "number", placeholder="$")}
-    {field("Where should your gift go?", "designation", required=True, options=["Where it's needed most", "Capital Summit", "Athari Fellowship"])}
     {field("Give in honor of a Black male educator who shaped you", "honor", placeholder="His name")}
-    <button class="btn btn--red" type="submit">Continue to secure checkout</button>
-    <p class="form-note">Apple Pay and Google Pay accepted. Prefer PayPal? <a href="{PAYPAL}"{EXT}>Give with PayPal</a>.</p>
+    <button class="btn btn--red" type="submit">Continue to PayPal</button>
+    <p class="form-note">You'll finish your gift securely on PayPal with a card or your PayPal account. Choose the same amount there, and check "make this a monthly donation" if you picked monthly.</p>
   </form>{success("Thank you.", "Your gift puts a Black male educator in the room and fuels NABME's work all year long.")}</div>
 </div></section>
 <section class="section band-stone"><div class="wrap split">
@@ -1237,13 +1256,18 @@ def build_summit():
     sw = "".join(logo_tile(n, u) for n, u in SUMMIT_FUNDERS)
     body = f'''
 <section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
-  {eyebrow("Summit 2027 · Info coming soon")}
+  {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
   <h1>The Black Male Educator <span class="red">Capital Summit</span></h1>
-  <p class="lede" style="margin-top:16px">The brotherhood is coming back together. Dates, speakers and registration drop soon.</p>
+  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. Registration opens soon.</p>
   <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}{btn("Get notified", "#notify-form", "light" if SUMMIT_REGISTER else "red")}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
 </div></section>
 
-<section class="section" style="padding-bottom:0" id="notify-form"><div class="wrap">{summit_banner()}</div></section>
+<section class="section band-dark" aria-labelledby="days-h"><div class="wrap">
+  <div class="section-head section-head--row"><div>{eyebrow("Save the dates")}<h2 id="days-h" class="h2">{SUMMIT_DATES}</h2></div>{countdown_block(buttons=False)}</div>
+  {summit_days()}
+</div></section>
+
+<section class="section" style="padding-top:0;padding-bottom:0" id="notify-form"><div class="wrap">{summit_banner()}</div></section>
 
 <section class="section"><div class="wrap split">
   <div>{eyebrow("About the Summit")}<h2 class="h2">A movement, not a moment.</h2></div>

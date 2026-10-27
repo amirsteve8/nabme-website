@@ -843,3 +843,9 @@ html.motion-off .strip__set[aria-hidden] { display: none; }
 @media (max-width: 680px) { .qr-card { display: none; } }
 .form-error { margin: 10px 0 0; color: var(--red-deep, #9e1c2d); font-weight: 600; font-size: .95rem; }
 .form-error:empty { display: none; }
+
+/* Summit 2027 dates */
+.day { color: var(--white); }
+.days-note { margin-top: 14px; font-size: .9rem; color: var(--on-dark-muted); }
+.summit-announce .section-head--row { align-items: end; gap: 28px; }
+.summit-announce .countdown-wrap { max-width: 520px; }

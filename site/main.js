@@ -303,6 +303,7 @@
       }
       const saveKey = form.closest("[data-save]")?.dataset.save;
       if (saveKey) try { localStorage.removeItem("nabme-form-" + saveKey); } catch {}
+      if (form.dataset.redirect) { location.href = form.dataset.redirect; return; } // e.g. Donate continues to PayPal
       if (wrap) { wrap.classList.add("is-done"); const s = $(".success", wrap); s && s.setAttribute("tabindex", "-1"); s && s.focus(); }
     });
   });
