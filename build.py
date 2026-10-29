@@ -313,7 +313,7 @@ def logo_file(name):
     return ""
 
 
-LOGO_DARK = {"Center for Black Educator Development"}  # logos made for dark backgrounds
+LOGO_DARK = set()  # logos made for dark backgrounds
 LOGO_ICON_ONLY = {"Monument Academy PCS"}  # logo files without the name: show the name under the icon
 
 
@@ -342,6 +342,7 @@ FUNDERS = [
     ("NewSchools Venture Fund", "https://www.newschools.org"),
     ("Education Forward DC", "https://edforwarddc.org"),
     ("The Annie E. Casey Foundation", "https://www.aecf.org"),
+    ("Executives' Alliance Fund", "https://schottfoundation.org/our-work/executive-alliance-boys-men-color/"),
 ]
 SUMMIT_FUNDERS = [
     ("Education Forward DC", "https://edforwarddc.org"),
@@ -355,6 +356,7 @@ SUMMIT_FUNDERS = [
     ("DC Prep", "https://www.dcprep.org"),
     ("Monument Academy PCS", "https://www.monumentacademy.org"),
     ("Center City PCS", "https://www.centercitypcs.org"),
+    ("Howard University Middle School of Mathematics & Science", "https://hu-ms2.org"),
 ]
 
 QUOTES = [

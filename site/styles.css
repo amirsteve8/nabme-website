@@ -920,6 +920,8 @@ html.motion-off .strip__set[aria-hidden] { display: none; }
 @media (max-width: 460px) { .grid-4:has(.account-card) { grid-template-columns: 1fr; } }
 /* Logo tiles */
 .logo-tile--img span { display: grid; justify-items: center; gap: 8px; }
-.logo-tile--img img { max-height: 58px; max-width: 82%; }
+.logo-tile--img img { max-height: 80px; max-width: 78%; }
 .logo-tile--dark { background: var(--graphite); border-color: var(--graphite); }
 .logo-tile__name { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.logo-tile--img { filter: none; }  /* real logos show in their own colors */
+.logo-tile--img img { max-height: 84px; }
