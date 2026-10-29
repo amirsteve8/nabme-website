@@ -858,18 +858,17 @@ def build_post_job():
 
 
 def build_donate():
-    amounts = "".join(f'<label class="check" style="justify-content:center;font-weight:700"><input type="radio" name="amount" value="{a}"{" checked" if a == "100" else ""}> ${a}</label>' for a in ["50", "100", "250", "500"])
     body = f'''
 <section class="phero phero--split"><div class="wrap">
   <div>{eyebrow("Donate")}<h1>NABME needs <span class="red">your help</span>.</h1><p class="lede">When you invest in NABME, you are investing in changing the lives of millions of marginalized children across the world. NABME aspires to dramatically increase the number of highly effective Black and Brown male educators who positively impact the children that they serve. Your gift will help us get this done.</p></div>
-  <div class="form-panel form-wrap" id="give"><form class="form" data-form="Donations" data-redirect="{PAYPAL}">
-    <fieldset class="field"><legend>Frequency</legend><div class="checks"><label class="check"><input type="radio" name="freq" value="monthly" checked> Monthly</label><label class="check"><input type="radio" name="freq" value="once"> One time</label></div></fieldset>
-    <fieldset class="field"><legend>Amount</legend><div class="checks" style="grid-template-columns:repeat(4,minmax(0,1fr))">{amounts}</div></fieldset>
-    {field("Other amount", "other", "number", placeholder="$")}
-    {field("Give in honor of a Black male educator who shaped you", "honor", placeholder="His name")}
-    <button class="btn btn--red" type="submit">Continue to PayPal</button>
-    <p class="form-note">You'll finish your gift securely on PayPal with a card or your PayPal account. Choose the same amount there, and check "make this a monthly donation" if you picked monthly.</p>
-  </form>{success("Thank you.", "Your gift puts a Black male educator in the room and fuels NABME's work all year long.")}</div>
+  <div class="form-panel give-card" id="give">
+    <p class="eyebrow">Give securely through PayPal</p>
+    <h2 class="h2" style="font-size:1.7rem">Every gift puts a Black male educator in the room.</h2>
+    <p>Choose your amount, give once or monthly, and pay with a card or your PayPal account, all on NABME's secure PayPal page.</p>
+    <ul class="give-steps"><li>Pick any amount, from $25 to whatever moves you</li><li>Check "Make this a monthly donation" to give every month</li><li>Giving in honor of a Black male educator who shaped you? Add his name in the note</li></ul>
+    <a class="btn btn--red give-btn" href="{PAYPAL}"{EXT}>Go to PayPal to give {ARROW}</a>
+    <p class="form-note">NABME is a 501(c)(3) nonprofit organization. PayPal emails you a receipt for your records.</p>
+  </div>
 </div></section>
 <section class="section band-stone"><div class="wrap split">
   <div>{eyebrow("Proof it works")}<h2 class="h2"><span class="red">100%</span> of our Athari Fellows are still in education, and 83% now lead.</h2><p class="lede" style="margin-top:16px">More than 310 educators answered the call to the first Capital Summit. <a href="/impact">Read our impact reports</a>.</p></div>
@@ -991,12 +990,14 @@ def build_live():
 
 
 def build_partners():
-    pw = "".join(logo_tile(n, u) for n, u in PARTNERS)
-    fw = "".join(logo_tile(n, u) for n, u in FUNDERS)
+    seen, combined = set(), []
+    for n, u in PARTNERS + FUNDERS:  # one list; an organization that is both appears once
+        if n not in seen:
+            seen.add(n); combined.append((n, u))
+    allw = "".join(logo_tile(n, u) for n, u in combined)
     body = f'''
 <section class="phero"><div class="wrap">{eyebrow("Partners and funders")}<h1>This work takes <span class="red">all of us</span>.</h1><p class="lede">Dramatically increasing the number of highly effective Black and Brown male teachers and leaders who positively affect marginalized children is a complex problem. It requires a comprehensive response, and everyone must participate in the solution. We are proud to stand with these partners and grateful to the funders who make the work possible.</p></div></section>
-<section class="section" aria-labelledby="p-h"><div class="wrap"><div class="section-head">{eyebrow("Partners")}<h2 id="p-h" class="h2">The organizations we build alongside.</h2></div><div class="logo-row">{pw}</div></div></section>
-<section class="section band-stone" id="funders" aria-labelledby="f-h"><div class="wrap"><div class="section-head">{eyebrow("Funders")}<h2 id="f-h" class="h2">The investors who have directly supported NABME.</h2></div><div class="logo-row">{fw}</div><p style="margin-top:24px"><a class="text-link text-link--red" href="/summit#funders">See our Summit funders {ARROW}</a></p></div></section>
+<section class="section" id="funders" aria-labelledby="p-h"><div class="wrap"><div class="section-head">{eyebrow("Funders + partners")}<h2 id="p-h" class="h2">The organizations we build alongside and the investors who directly support NABME.</h2></div><div class="logo-row">{allw}</div><p style="margin-top:24px"><a class="text-link text-link--red" href="/summit#funders">See the funders of the Capital Summit {ARROW}</a></p></div></section>
 {closing("Partner with NABME.", "", btn("Become a partner", "/contact", "light") + btn("Support the work", "/donate", "ghost", False))}'''
     page("/partners", "Partners and Funders", "NABME's partners and funders, from Education Forward DC to The Annie E. Casey Foundation.", body, "partners")
 
@@ -1280,6 +1281,11 @@ def build_summit():
 
 <section class="section" style="padding-top:0;padding-bottom:0" id="notify-form"><div class="wrap">{summit_banner()}</div></section>
 
+<section class="section" id="funders" aria-labelledby="sf-h"><div class="wrap">
+  <div class="section-head section-head--row"><div>{eyebrow("Summit funders")}<h2 id="sf-h" class="h2">Thank you to the funders of the Capital Summit.</h2><p class="lede" style="margin-top:12px">These organizations fund the Black Male Educator Capital Summit itself. Summit funders are recognized here.</p></div><p id="sponsor">{btn("Fund the Summit", "/contact", "outline")}</p></div>
+  <div class="logo-row">{sw}</div>
+</div></section>
+
 <section class="section"><div class="wrap split">
   <div>{eyebrow("About the Summit")}<h2 class="h2">A movement, not a moment.</h2></div>
   <div class="prose"><p>On February 28, 2026, the inaugural Summit convened in Washington, D.C., bringing together more than 190 registered Black male educators, leaders, and allies for a historic day of professional development, fellowship, and collective strategy.</p><p>The response was extraordinary: over 310 educators registered or joined the waitlist, representing more than 20 states and spanning every level of the education system.</p><p>The Summit was not simply a professional development event. It was a declaration that Black male educators are not ancillary to the American education project, but essential to it. A movement, not a moment.</p></div>
@@ -1324,12 +1330,6 @@ def build_summit():
   <div class="voices">{"".join(f'<blockquote class="voice"><p>“{e(q)}”</p><cite>{e(c)}</cite></blockquote>' for q, c in voices)}</div>
 </div></section>
 
-<section class="section" id="funders" aria-labelledby="sf-h"><div class="wrap">
-  <div class="section-head">{eyebrow("Our Summit funders")}<h2 id="sf-h" class="h2">The inaugural Summit was made possible by these partners.</h2></div>
-  <div class="logo-row">{sw}</div>
-  <p style="margin-top:22px" id="sponsor">{btn("Become a sponsor", "/contact", "outline")}</p>
-</div></section>
-
 <section class="section" style="padding-top:0" aria-labelledby="give-h"><div class="wrap"><div class="summit-banner">
   <div>{eyebrow("Give to the movement")}<h2 id="give-h">Every seat is a <span>statement</span>.</h2><p class="lede" style="margin-top:14px">Your gift puts a Black male educator in the room, keeps the Summit open to every educator, and fuels NABME's work all year long.</p><div class="btn-row" style="margin-top:22px">{btn("Give to the Summit", "/donate#give")}{btn("Support NABME", "/donate", "ghost", False)}</div><p style="margin-top:14px"><a href="/donate#give" style="color:#fff">Give in honor of a Black male educator who shaped you</a></p></div>
   <div class="metric metric--dark" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)"><span class="metric__num" data-count="120" data-suffix="+">120+</span><span class="metric__label">Educators were waitlisted for the inaugural Summit. Help us make room.</span></div>
@@ -1359,6 +1359,7 @@ def build_summit_register():
     <h2 class="h2" style="font-size:1.4rem;margin:26px 0 14px">What's happening</h2>
     <ul class="reg-days">{"".join(f'<li><span>{w} · {d}</span><b>{t}</b><p>{x}</p></li>' for w, d, t, x in SUMMIT_DAYS)}</ul>
     <p class="source" style="margin-top:14px">More events will be announced soon. Saturday's Summit is at Howard University.</p>
+    <p class="group-note"><b>Registering a group?</b> If you are interested in a group registration purchase, email <a href="mailto:bmecsummit@nabme.org">bmecsummit@nabme.org</a>.</p>
     <p class="source" style="margin-top:14px">Questions? Email info@nabme.org.</p>
   </aside>
   <div class="form-panel form-wrap"><form class="form" data-form="Summit Registrations"{f' data-redirect="{pay}"' if pay else ""}><div class="form-grid">
@@ -1395,6 +1396,7 @@ def build_summit_register():
 <section class="section"><div class="wrap" style="max-width:720px">
   <h2 class="h2" style="font-size:1.6rem;margin-bottom:12px">Get notified when registration opens</h2>
   <form class="inline-form" data-inline data-table="Summit Interest" data-source="registration-closed" data-done="You're on the list" data-thanks="We'll email you the moment Summit registration opens."><label class="sr" for="em-reg">Email address</label><input id="em-reg" type="email" name="email" placeholder="you@school.org" autocomplete="email" required><button class="btn btn--red" type="submit">Notify me</button></form><p class="inline-msg" aria-live="polite"></p>
+  <p class="group-note" style="margin-top:28px"><b>Registering a group?</b> If you are interested in a group registration purchase, email <a href="mailto:bmecsummit@nabme.org">bmecsummit@nabme.org</a>.</p>
 </div></section>'''
     page("/summit/register", "Register for the Capital Summit", "Register for the 2027 Black Male Educator Capital Summit, February 11–13 in Washington, D.C. Registration is " + SUMMIT_FEE + ".", body, "programs")
 
