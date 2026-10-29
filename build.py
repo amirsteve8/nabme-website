@@ -313,10 +313,16 @@ def logo_file(name):
     return ""
 
 
+LOGO_DARK = {"Center for Black Educator Development"}  # logos made for dark backgrounds
+LOGO_ICON_ONLY = {"Monument Academy PCS"}  # logo files without the name: show the name under the icon
+
+
 def logo_tile(name, url, note="", lg=False):
     cls = "logo-tile logo-tile--lg" if lg else "logo-tile"
+    if name in LOGO_DARK: cls += " logo-tile--dark"
     src = logo_file(name)
     inner = f'<img src="{src}" alt="{e(name)}" loading="lazy">' if src else e(name)
+    if src and name in LOGO_ICON_ONLY: inner += f'<b class="logo-tile__name">{e(name)}</b>'
     return f'<a class="{cls}{" logo-tile--img" if src else ""}" href="{url}"{EXT}><span>{inner}{f"<small>{e(note)}</small>" if note else ""}</span></a>'
 
 
