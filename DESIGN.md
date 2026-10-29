@@ -79,3 +79,9 @@ Build each version with `NABME_VARIANT=a|b|c python3 build.py`. Version A output
 - Until those variables exist, the function answers 503 "not configured" and the forms show their success messages as before.
 - Optional email alerts: set `RESEND_API_KEY`, `NOTIFY_FROM` and `NOTIFY_TO`.
 - Every form includes a hidden spam-trap field. The Resume Bank video intro is a link field, not an upload.
+
+## Launch (Oct 29, 2026)
+- **Live at https://nabme.org.** The www address and the preview address forward there, and printed QR codes keep working through /register.
+- **DNS moved from GoDaddy to Vercel** (nameservers ns1/ns2.vercel-dns.com), because GoDaddy's firewall locked the main record. Every email and Microsoft 365 record was copied over and checked. Manage DNS in Vercel from now on. The undo list is in `../launch/nabme-org-dns-before-launch.md`.
+- **The domain itself stays registered at GoDaddy** (renews Oct 2027), along with NABME's Microsoft 365 email.
+- **`LIVE = True` in build.py:** search indexing, sitemap.xml and Vercel Analytics are on.

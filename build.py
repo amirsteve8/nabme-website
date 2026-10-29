@@ -78,7 +78,7 @@ REPORTS = {  # full decks, shared from NABME's Drive (viewable and downloadable)
 }
 PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=R6A7JGUC8FP32"
 SITE_URL = "https://nabme.org"
-LIVE = False  # launch switch: True = search engines can index, sitemap and analytics on, preview address forwards to nabme.org
+LIVE = True  # launch switch: True = search engines can index, sitemap and analytics on, preview address forwards to nabme.org
 PAGES_BUILT = []  # filled by page(); used for sitemap.xml
 ANALYTICS = '\n<script defer src="/_vercel/insights/script.js"></script>' if LIVE else ""  # Vercel Web Analytics
 SUMMIT_START = "2027-02-11T08:00:00-05:00"  # countdown target: day one of Summit 2027
@@ -1594,7 +1594,7 @@ def write_support_files():
         "trailingSlash": False,
         # /register is the printed QR code's target: a temporary redirect, so it can point at the live registration page later
         # after launch, the preview address forwards to nabme.org (keeps the printed QR code working)
-        "redirects": ([{"source": "/:path*", "has": [{"type": "host", "value": "nabme-movement.vercel.app"}], "destination": SITE_URL + "/:path*", "permanent": False}] if LIVE else [])
+        "redirects": ([{"source": "/:path*", "has": [{"type": "host", "value": h}], "destination": SITE_URL + "/:path*", "permanent": h.startswith("www")} for h in ("nabme-movement.vercel.app", "www.nabme.org")] if LIVE else [])
                      + [{"source": s, "destination": d, "permanent": True} for s, d in redirects]
                      + [{"source": "/register", "destination": "/summit/register", "permanent": False}],
         "headers": [] if LIVE else [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}],

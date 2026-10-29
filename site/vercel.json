@@ -3,6 +3,28 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "nabme-movement.vercel.app"
+        }
+      ],
+      "destination": "https://nabme.org/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.nabme.org"
+        }
+      ],
+      "destination": "https://nabme.org/:path*",
+      "permanent": true
+    },
+    {
       "source": "/sponsors",
       "destination": "/partners",
       "permanent": true
@@ -113,15 +135,5 @@
       "permanent": false
     }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        }
-      ]
-    }
-  ]
+  "headers": []
 }
