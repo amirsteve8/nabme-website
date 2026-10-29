@@ -48,6 +48,19 @@ export const TABLES = {
       ["heard", "How they heard", "text"], ["photo_consent", "Photo consent", "text"],
     ],
   },
+  "Call for Proposals": {
+    status: ["New", "Under review", "Accepted", "Declined"],
+    fields: [
+      ["name", "Full name", "text"], ["prof_title", "Professional or academic title", "text"], ["org", "Organization", "text"],
+      ["role", "Title or role", "text"], ["email", "Email", "email"], ["phone", "Phone", "phone"],
+      ["bio", "Bio", "long"], ["connection", "Connection to Black male educators and the theme", "long"],
+      ["strand", "Strand", "text"], ["session_title", "Session title", "text"], ["description", "Session description", "long"],
+      ["agenda", "Session agenda (60 minutes)", "long"], ["objectives", "Objectives and learning outcomes", "long"],
+      ["interactive", "How it's interactive", "long"], ["audience", "Intended audience", "long"], ["grades", "Grade band", "long"],
+      ["present_twice", "Can present twice", "text"], ["av", "AV and presentation needs", "long"], ["av_other", "Other AV needs", "text"],
+      ["recording", "Open to recording and sharing", "text"], ["handouts", "Handouts", "file"],
+    ],
+  },
   "Athari Interest": {
     fields: [["name", "Name", "text"], ["email", "Email", "email"], ["school", "School", "text"], ["role", "Role", "text"], ["years", "Years in education", "text"]],
   },

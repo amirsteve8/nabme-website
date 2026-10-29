@@ -185,14 +185,31 @@
 
   // ---------- Forms (front end only until connected to NABME's email tool / CRM) ----------
   const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+  const words = (t) => (t.trim().match(/\S+/g) || []).length;
+  $$("textarea[data-max-words]").forEach((ta) => { // live word counter under the box
+    const out = document.createElement("span");
+    out.className = "word-count"; out.setAttribute("aria-live", "polite");
+    ta.insertAdjacentElement("afterend", out);
+    const upd = () => { const n = words(ta.value), max = +ta.dataset.maxWords, min = +(ta.dataset.minWords || 0); out.textContent = `${n} / ${min ? min + "–" : ""}${max} words`; out.classList.toggle("is-over", n > max); };
+    ta.addEventListener("input", upd); upd();
+  });
   const validateField = (field) => {
     if (field.hasAttribute("data-required-group")) { // a set of checkboxes where at least one must be ticked
-      const ok = $$("input[type=checkbox]", field).some((b) => b.checked);
+      const ok = $$("input[type=checkbox], input[type=radio]", field).some((b) => b.checked);
       field.classList.toggle("is-invalid", !ok);
       return ok;
     }
     const input = $("input, select, textarea", field);
     if (!input) return true;
+    if (input.dataset.maxWords) { // word-limited answers (proposal bio, session description)
+      const n = words(input.value), max = +input.dataset.maxWords, min = +(input.dataset.minWords || 0);
+      const ok = n > 0 && n <= max && n >= min;
+      const err = $(".err", field);
+      if (err) err.textContent = !n ? "This field is required." : n > max ? `Please keep this to ${max} words (now ${n}).` : `Please write at least ${min} words (now ${n}).`;
+      field.classList.toggle("is-invalid", !ok);
+      input.setAttribute("aria-invalid", String(!ok));
+      return ok;
+    }
     let ok = true;
     if (input.type === "checkbox") ok = !input.required || input.checked;
     else if (input.required && !input.value.trim()) ok = false;

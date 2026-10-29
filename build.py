@@ -84,6 +84,8 @@ SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be anno
     ("Friday", "Feb 12", "Black Boy Hackathon", "Students and educators build solutions together."),
     ("Saturday", "Feb 13", "Black Male Educator Capital Summit", "A full day of keynotes, breakouts and brotherhood at Howard University."),
 ]
+SUMMIT_REG_OPEN = False  # True turns Summit registration (and its $100 PayPal checkout) back on
+CFP_DEADLINE = "Monday, December 14, 2026"
 SUMMIT_FEE = "$100"
 SUMMIT_PAY_URL = "https://www.paypal.com/ncp/payment/NHRTEGF92R54N"  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
 HOWARD_LOGO = "assets/logos/howard.png"  # shown in the Summit banner when the file exists
@@ -97,7 +99,7 @@ SOCIAL = [
 
 NAV = [
     ("Who We Are", "who", [("Mission & Values", "/mission", "Mission, vision and core beliefs"), ("Founders", "/founders", "The people behind the mission"), ("Our Impact", "/impact", "Impact reports, 2016–2026")]),
-    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C.")]),
+    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C."), ("Call for Proposals", "/summit/proposals", "Present at the 2027 Summit · due Dec. 14")]),
     ("Careers", "careers", [("Talent Portal", "/talent", "One portal, three ways in"), ("Resume Bank", "/resume-bank", "Free educator profile"), ("Employer Access", "/employers", "Search the talent"), ("Job Board", "/jobs", "Open positions")]),
     ("NABME News", "news", [("Blog", "/blog", "NABME Voices"), ("Media", "/media", "Coverage of NABME"), ("Events", "/events", "Upcoming and past"), ("NABME Live", "/live", "The movement, in real time")]),
     ("Partners", "partners", [("Partners & Funders", "/partners", "Who we build alongside and who supports the work")]),
@@ -262,11 +264,18 @@ def howard_mark():
 
 
 def summit_register_btn(kind="light"):
-    return btn("Register now", "/summit/register", kind)
+    return btn("Register now", "/summit/register", kind) if SUMMIT_REG_OPEN else btn("Submit a proposal", "/summit/proposals", kind)
+
+
+def summit_tabs(active):
+    tabs = [("overview", "Overview", "/summit"), ("mission", "Mission, Strands & Goals", "/summit/mission"), ("proposals", "Call for Proposals", "/summit/proposals")]
+    cur = ' aria-current="page"'
+    links = "".join(f'<a href="{h}"{cur if k == active else ""}>{t}</a>' for k, t, h in tabs)
+    return f'<nav class="subnav" aria-label="Summit sections"><div class="wrap">{links}</div></nav>'
 
 
 def summit_banner(heading_tag="h2"):
-    return f'''<div class="summit-banner summit-banner--soon" id="register"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University.</p><p class="summit-fee"><b>Registration is open.</b> {SUMMIT_FEE} per educator.</p><div class="btn-row" style="margin-top:20px">{summit_register_btn("red")}</div></div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>Scan to register</b>Point your phone's camera at the code.</p></div></div></div>'''
+    return f'''<div class="summit-banner summit-banner--soon" id="register"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University.</p><p class="summit-fee">{f"<b>Registration is open.</b> {SUMMIT_FEE} per educator." if SUMMIT_REG_OPEN else f"<b>Call for proposals is open</b> through {CFP_DEADLINE}. Registration opens soon."}</p><div class="btn-row" style="margin-top:20px">{summit_register_btn("red")}</div></div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>{"Scan to register" if SUMMIT_REG_OPEN else "Scan for Summit details"}</b>Point your phone's camera at the code.</p></div></div></div>'''
 
 
 def impact_band():
@@ -375,7 +384,7 @@ def role_field(label="Your role", name="role", required=True):
             f'<div class="field" data-other-for="f-{name}" hidden><label for="f-{name}-other">Type your role</label><input id="f-{name}-other" name="{name}_other" type="text" placeholder="For example: Family engagement coordinator"><span class="err">Tell us your role.</span></div>')
 
 
-def field(label, name, typ="text", required=False, hint="", full=False, options=None, placeholder="", auto=""):
+def field(label, name, typ="text", required=False, hint="", full=False, options=None, placeholder="", auto="", attrs=""):
     req = " required" if required else ""
     star = "" if required else ' <span class="hint">(optional)</span>'
     fid = "f-" + name
@@ -386,7 +395,7 @@ def field(label, name, typ="text", required=False, hint="", full=False, options=
         opts = '<option value="">Choose one</option>' + "".join(f"<option>{e(o)}</option>" for o in options)
         control = f'<select id="{fid}" name="{name}"{req}{desc}>{opts}</select>'
     elif typ == "textarea":
-        control = f'<textarea id="{fid}" name="{name}"{req}{desc} placeholder="{e(placeholder)}"></textarea>'
+        control = f'<textarea id="{fid}" name="{name}"{req}{desc}{attrs} placeholder="{e(placeholder)}"></textarea>'
     else:
         control = f'<input id="{fid}" name="{name}" type="{typ}"{req}{desc}{auto_attr} placeholder="{e(placeholder)}">'
     err = {"email": "Enter a valid email address.", "url": "Enter a full link starting with https://"}.get(typ, "This field is required.")
@@ -1259,9 +1268,10 @@ def build_summit():
 <section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
   {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
   <h1>The Black Male Educator <span class="red">Capital Summit</span></h1>
-  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. Registration is open: {SUMMIT_FEE} per educator.</p>
+  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. {"Registration is open: " + SUMMIT_FEE + " per educator." if SUMMIT_REG_OPEN else "The call for proposals is open through " + CFP_DEADLINE + "."}</p>
   <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
 </div></section>
+{summit_tabs("overview")}
 
 <section class="section band-dark" aria-labelledby="days-h"><div class="wrap">
   <div class="section-head section-head--row"><div>{eyebrow("Save the dates")}<h2 id="days-h" class="h2">{SUMMIT_DATES}</h2></div>{countdown_block(buttons=False)}</div>
@@ -1372,7 +1382,165 @@ def build_summit_register():
   </div><p class="form-note">{note}</p><div><button class="btn btn--red" type="submit">{"Continue to payment" if pay else "Register"} {ARROW}</button></div></form>
   {success("You're registered.", ("Your spot is saved. Complete your " + SUMMIT_FEE + " payment on PayPal to confirm it.") if pay else ("Your spot is saved. Watch your inbox: NABME will email your " + SUMMIT_FEE + " payment link and Summit details."), btn("Back to the Summit", "/summit", "outline"))}</div>
 </div></section>'''
+    if not SUMMIT_REG_OPEN:
+        body = f'''
+<section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
+  <p class="crumbs"><a href="/summit" style="color:#fff">The Capital Summit</a> / Registration</p>
+  {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
+  <h1>Registration <span class="red">opens soon</span></h1>
+  <p class="lede">Be the first to know when registration opens. Want to present? The call for proposals is open through {CFP_DEADLINE}.</p>
+  <div class="btn-row">{btn("Submit a proposal", "/summit/proposals", "red")}{btn("See the Summit", "/summit", "ghost", False)}</div>
+</div></section>
+{summit_tabs("")}
+<section class="section"><div class="wrap" style="max-width:720px">
+  <h2 class="h2" style="font-size:1.6rem;margin-bottom:12px">Get notified when registration opens</h2>
+  <form class="inline-form" data-inline data-table="Summit Interest" data-source="registration-closed" data-done="You're on the list" data-thanks="We'll email you the moment Summit registration opens."><label class="sr" for="em-reg">Email address</label><input id="em-reg" type="email" name="email" placeholder="you@school.org" autocomplete="email" required><button class="btn btn--red" type="submit">Notify me</button></form><p class="inline-msg" aria-live="polite"></p>
+</div></section>'''
     page("/summit/register", "Register for the Capital Summit", "Register for the 2027 Black Male Educator Capital Summit, February 11–13 in Washington, D.C. Registration is " + SUMMIT_FEE + ".", body, "programs")
+
+
+CFP_STRANDS = [
+    ("AI, Technology & Instruction", "How are Black male educators leading, adapting, and innovating in the classroom and in the age of artificial intelligence? Sessions in this strand should address high quality instructional practice and how technology is reshaping teaching, learning, and leadership, and how Black male educators can lead that transformation rather than be displaced by it. Topics may include culturally responsive pedagogy, rigorous and engaging instructional strategies, AI-powered instructional tools, digital literacy, the ethics of technology in education, or innovative classroom and school-level applications."),
+    ("Civic Education", "How are Black male educators deepening their own civic knowledge and preparing the next generation for informed participation in democracy? This strand moves beyond civic engagement to civic education: equipping educators with the content knowledge, historical grounding, and pedagogical tools to teach civics with clarity and conviction. Topics may include policy literacy, the role of Black men in shaping education policy, teaching government and democracy in K–12 settings, or building civic identity among students."),
+    ("Health & Wellness", "How are Black male educators sustaining themselves, physically, mentally, and financially, while sustaining the communities they serve? Sessions in this strand should address the full spectrum of wellbeing: chronic illness prevention, mental health, economic mobility, financial literacy, work-life balance, and the unique health challenges facing Black men in education. This strand is about the whole man, not just the professional."),
+]
+
+
+def build_summit_mission():
+    strands = [
+        ("Strand 1", "AI, Technology & Instruction", "Leveraging emerging tools and high quality instructional practice to strengthen teaching, learning, and leadership.",
+         "Equip Black male educators with the knowledge and tools to leverage artificial intelligence, emerging technology, and high quality instructional practice to strengthen their teaching, streamline their leadership, and prepare their students for a future that is already here.",
+         [("1.1", "Ensure that every attendee who engages with the AI, Technology & Instruction strand leaves with at least one AI tool or instructional strategy they can implement in their classroom or school within 30 days of the Summit."),
+          ("1.2", "Demystify AI for educators who have had no formal exposure, moving them from apprehension to informed agency, with a focus on how AI can reduce their workload rather than replace their expertise."),
+          ("1.3", "Showcase how AI-driven platforms can deliver personalized professional development and leadership content to Black male educators at scale, modeling the kind of innovation NABME is building through the AI-enhanced Athari Fellowship concept."),
+          ("1.4", "Address the equity dimensions of AI in education: who is building it, whose data trains it, whose students benefit, and how Black male educators can be active shapers of technology rather than passive consumers.")]),
+        ("Strand 2", "Civic Education (Fighting Misinformation)", "Deepening civic knowledge and equipping Black male educators to teach, lead, and advocate with clarity and conviction.",
+         "Educate Black male educators on the civic structures, media ecosystems, and information landscapes that shape their communities, so they can recognize misinformation, understand the systems it exploits, and bring that knowledge back to their students and schools.",
+         [("2.1", "Develop educators' media literacy and critical analysis skills so they can identify misinformation targeting their communities, and teach those skills to their students."),
+          ("2.2", "Connect the Summit to the Capitol Hill Fly-In advocacy day, ensuring that civic education is not theoretical but grounded in direct experience. Educators who attend the Thursday fly-in bring firsthand knowledge of the legislative process into Saturday's sessions."),
+          ("2.3", "Build a network of Black male educators who are informed, knowledgeable, and connected to one another as civic voices, so that when misinformation campaigns emerge, the response is not individual but collective.")]),
+        ("Strand 3", "Health & Wellness", "General wellbeing, chronic illness prevention, and economic mobility, embedded within wellness as a dimension of whole-person health.",
+         "Address the full spectrum of what it means for a Black man in education to be well, physically, mentally, and financially, because the same system that depletes Black male educators professionally also undermines their health and their wealth, and you cannot solve one without solving the others. This strand explicitly treats physical health, mental health, and financial health as interdependent.",
+         [("3.1", "Mental health and general wellbeing: create space for Black male educators to name the emotional and psychological toll of the work without judgment, and provide evidence-based strategies for managing stress, burnout, and the unique mental health challenges of being a Black man in a system not designed for him."),
+          ("3.2", "Chronic illness and physical health: address the chronic illnesses that disproportionately impact Black men (hypertension, diabetes, heart disease, and stress-related conditions) with practical health literacy, screening awareness, and prevention strategies that educators can act on immediately."),
+          ("3.3", "Economic mobility: reframe financial health as a dimension of overall wellness, with concrete wealth-building strategies (homeownership pathways, investment fundamentals, retirement planning, side income development, and debt elimination), because a career of service should not require a lifetime of economic sacrifice."),
+          ("3.4", "Wellness experience: deliver an on-site wellness experience (massage, mindfulness, decompression space) that gives educators an immediate, tangible encounter with what it feels like to prioritize their own wellbeing inside a professional setting.")]),
+    ]
+    overview = "".join(f'<article class="card card--bar{"-red" if i != 1 else ""}"><p class="kicker{" red" if i != 1 else ""}">{n}</p><h3>{t}</h3><p>{d}</p></article>' for i, (n, t, d, _, _) in enumerate(strands))
+    detail = "".join(f'''<article class="strand" id="strand-{i + 1}"><div class="strand__head"><p class="eyebrow">{n}</p><h3>{t}</h3><p class="strand__purpose"><b>Purpose:</b> {p}</p></div><ol class="goals">{"".join(f"<li><span>{g}</span><p>{x}</p></li>" for g, x in goals)}</ol></article>''' for i, (n, t, _, p, goals) in enumerate(strands))
+    overarching = [
+        "Convene 500 attendees, including current Black male educators, aspiring educators (high school and college students), college and university professors, and education leaders, for professional development, brotherhood, and collective strategy, establishing the Summit as the premier national professional development experience for Black male educators and those who support them.",
+        "Deliver programming shaped entirely by attendee feedback, survey data, and post-Summit research, ensuring that every session addresses a need the educators themselves identified, while maintaining or exceeding the Year 1 benchmarks of a 97 Net Promoter Score and 100% satisfaction rate at double the scale.",
+        "Ensure that every attendee leaves with at least one AI tool or instructional strategy they can implement immediately, at least one strategy for protecting their health or building wealth, at least one framework for civic education in their school or community, and at least one meaningful professional relationship that extends beyond the weekend.",
+    ]
+    og = "".join(f"<li><span>{i + 1:02d}</span><p>{x}</p></li>" for i, x in enumerate(overarching))
+    body = f'''
+<section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("p_lineup", eager=True, pos="center 35%")}</div><div class="wrap">
+  <p class="crumbs"><a href="/summit" style="color:#fff">The Capital Summit</a> / Mission, Strands &amp; Goals</p>
+  {eyebrow("Summit 2027 · Mission, strands and goals")}
+  <h1>The ecosystem of a <span class="red">balanced man</span>.</h1>
+  <p class="lede">A man's professional craft, civic voice, and total wellbeing are not separate topics. Together they make the ecosystem of a balanced man, and a balanced man is the most powerful force in education.</p>
+</div></section>
+{summit_tabs("mission")}
+
+<section class="section"><div class="wrap split">
+  <div>{eyebrow("Summit mission")}<h2 class="h2">Why the Summit exists.</h2></div>
+  <p class="statement" style="font-size:clamp(1.25rem,2.1vw,1.7rem)">The Black Male Educator Capital Summit convenes Black male educators nationally to address the forces that determine whether these men stay in education, lead effectively, and live well. Organized around three strands (AI, Technology &amp; Instruction; Civic Education; and Health &amp; Wellness), the Summit treats a man's professional craft, civic voice, and total wellbeing not as separate topics but as the ecosystem of a balanced man.</p>
+</div></section>
+
+<section class="section band-stone" aria-labelledby="how-h"><div class="wrap split">
+  <div>{eyebrow("How we got here")}<h2 id="how-h" class="h2">Chosen by the educators themselves.</h2></div>
+  <div class="prose"><p>The three strands for the 2027 Summit were not selected by leadership alone. They were determined by the Summit Committee based on feedback from the inaugural Summit attendees, research and data collected from surveys and interviews conducted throughout the year, and the committee's analysis of the most urgent needs facing Black male educators nationally. Every strand reflects what the educators themselves told us matters most.</p><p>Economic mobility is intentionally embedded within Health &amp; Wellness rather than standing as a separate strand. Financial precarity is a health issue: a man who is economically insecure cannot be fully well, and the stress of financial instability compounds every other health risk Black men face.</p></div>
+</div></section>
+
+<section class="section" aria-labelledby="strands-h"><div class="wrap">
+  <div class="section-head">{eyebrow("The three strands")}<h2 id="strands-h" class="h2">Three strands. One balanced man.</h2></div>
+  <div class="grid-3">{overview}</div>
+</div></section>
+
+<section class="section band-dark" aria-labelledby="goals-h"><div class="wrap">
+  <div class="section-head">{eyebrow("Summit goals · across all strands")}<h2 id="goals-h" class="h2">What every attendee leaves with.</h2></div>
+  <ol class="goals goals--dark">{og}</ol>
+</div></section>
+
+<section class="section" aria-labelledby="sg-h"><div class="wrap">
+  <div class="section-head">{eyebrow("Goals by strand")}<h2 id="sg-h" class="h2">How each strand serves the whole man.</h2></div>
+  <div class="strands">{detail}</div>
+</div></section>
+
+{closing("Have a session that serves the whole man?", "The call for proposals is open through " + CFP_DEADLINE + ".", btn("Submit a proposal", "/summit/proposals", "light") + btn("Back to the Summit", "/summit", "ghost", False))}'''
+    page("/summit/mission", "Summit Mission, Strands and Goals", "The mission, three strands and goals of the 2027 Black Male Educator Capital Summit: AI, Technology & Instruction; Civic Education; and Health & Wellness.", body, "programs")
+
+
+def radios(legend, name, options, required=True):
+    boxes = "".join(f'<label class="check"><input type="radio" name="{name}" value="{e(o)}"> {e(o)}</label>' for o in options)
+    return f'<fieldset class="field field--full"{" data-required-group" if required else ""}><legend>{e(legend)}</legend><div class="checks">{boxes}</div><span class="err">Choose one.</span></fieldset>'
+
+
+def build_summit_proposals():
+    facts = [("Submission deadline", CFP_DEADLINE), ("Anticipated attendance", "500 educators, school leaders, and allies"), ("Summit experience", "Three-day national convening (Thursday–Saturday)"),
+             ("Presentation length", "60 minutes, presented twice for two participant groups"), ("Location", "Howard University School of Education &amp; Howard University Middle School")]
+    fc = "".join(f"<div><dt>{a}</dt><dd>{b}</dd></div>" for a, b in facts)
+    sc = "".join(f'<article class="card card--bar{"-red" if i != 1 else ""}"><p class="kicker{" red" if i != 1 else ""}">Strand {i + 1}</p><h3>{t}</h3><p>{d}</p></article>' for i, (t, d) in enumerate(CFP_STRANDS))
+    audiences = ["Classroom Teachers / Lead Teachers", "Instructional Assistants / Paraprofessionals", "School Leaders (Principals, Assistant Principals, Deans)", "District / Headquarters Staff", "Aspiring Educators", "Allies & Advocates"]
+    grades = ["Pre-K–Elementary (PK–5)", "Middle School (6–8)", "High School (9–12)", "Postsecondary / Higher Education", "All Grade Levels / General Audience"]
+    av = ["Projector", "HDMI / Display Adaptor", "Laptop (presenter does not have one)", "Microphone / Speaker System", "Whiteboard / Easel Pad", "Markers / Pens / Pencils", "Chart Paper / Poster Paper", "Printed Handouts (please attach file)", "Internet / Wi-Fi Access", "Other"]
+    group = lambda legend, name, opts, req=False: f'<fieldset class="field field--full"{" data-required-group" if req else ""}><legend>{e(legend)}</legend><div class="checks">{"".join(f"<label class=check><input type=checkbox name={chr(34)}{name}{chr(34)} value={chr(34)}{e(o)}{chr(34)}> {e(o)}</label>" for o in opts)}</div><span class="err">Choose at least one.</span></fieldset>'
+    body = f'''
+<section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("p_panel", eager=True, pos="center 35%")}</div><div class="wrap">
+  <p class="crumbs"><a href="/summit" style="color:#fff">The Capital Summit</a> / Call for Proposals</p>
+  {eyebrow("Request for proposals · " + SUMMIT_DATES + " · Howard University")}
+  <h1>Present at the <span class="red">2027 Summit</span>.</h1>
+  <p class="lede">Black Brilliance. Black Scholarship. Black Possibility. Proposals are due {CFP_DEADLINE}.</p>
+  <div class="btn-row">{btn("Start your proposal", "#proposal-form", "red")}{btn("Read the strands", "#cfp-strands", "ghost", False)}</div>
+</div></section>
+{summit_tabs("proposals")}
+
+<section class="section"><div class="wrap split">
+  <div>{eyebrow("Call for proposals")}<h2 class="h2">Engaging. Interactive. Action-oriented.</h2></div>
+  <div class="prose"><p>Thank you for your interest in presenting at the 2027 Black Male Educator Capital Summit. We invite engaging, interactive, and action-oriented presentations that elevate Black male educators and align with this year's theme: Black Brilliance, Black Scholarship, Black Possibility.</p><p>All proposals must address one of the three 2027 Summit strands and include a clear plan for how participants will apply the learning in their roles.</p>
+  <dl class="facts-list">{fc}</dl></div>
+</div></section>
+
+<section class="section band-stone" id="cfp-strands" aria-labelledby="cfps-h"><div class="wrap">
+  <div class="section-head">{eyebrow("2027 Summit strands")}<h2 id="cfps-h" class="h2">Every session aligns with one strand.</h2><p class="lede">These strands reflect the issues and opportunities most central to the lives and leadership of Black male educators today. <a href="/summit/mission">See the full mission, strands and goals</a>.</p></div>
+  <div class="grid-3">{sc}</div>
+</div></section>
+
+<section class="section" id="proposal-form"><div class="wrap" style="max-width:920px">
+  <div class="form-panel form-wrap"><form class="form" data-form="Call for Proposals"><div class="form-grid">
+    <h2 class="field--full form-section">Section 1 · Presenter contact information</h2>
+    {field("Full name", "name", required=True, auto="name")}
+    {field("Professional/academic title", "prof_title", required=True, placeholder="Dr., Mr., Professor…")}
+    {field("Organization name", "org", required=True, auto="organization")}
+    {field("Title/role", "role", required=True, auto="organization-title")}
+    {field("Email address", "email", "email", required=True, auto="email")}
+    {field("Phone number", "phone", "tel", required=True, auto="tel")}
+    {field("Brief bio (150 words)", "bio", "textarea", required=True, full=True, hint="Highlight your experience, leadership roles, and work serving Black male educators and students.", attrs=' data-max-words="150"')}
+    {field("How does your experience connect to Black male educators and/or the Summit theme of Black Brilliance, Black Scholarship, Black Possibility?", "connection", "textarea", required=True, full=True)}
+
+    <h2 class="field--full form-section">Section 2 · Session alignment and strand</h2>
+    {radios("Which 2027 Summit strand does your session address? (select one)", "strand", [t for t, _ in CFP_STRANDS])}
+    {field("Session title", "session_title", required=True, full=True)}
+    {field("Session description (200–300 words)", "description", "textarea", required=True, full=True, hint="Address: What will participants learn? How does your session connect to your selected strand? How will the presentation accelerate teacher and leader practice upon returning to work? How does your session embody Black Brilliance, Black Scholarship, and Black Possibility for Black male educators and their allies?", attrs=' data-max-words="300" data-min-words="200"')}
+
+    <h2 class="field--full form-section">Section 3 · Session design and facilitation</h2>
+    {field("Session agenda (60 minutes)", "agenda", "textarea", required=True, full=True, hint="Outline the flow of your session (time-stamped or bulleted), highlighting where participants will interact, discuss, or practice.")}
+    {field("What are the primary objectives/learning outcomes for this session?", "objectives", "textarea", required=True, full=True, placeholder="By the end of the session, participants will be able to…")}
+    {field("How will you ensure this presentation is interactive (not a lecture)?", "interactive", "textarea", required=True, full=True, hint="Describe specific activities (e.g., protocols, small-group work, case studies, role-plays, reflection prompts).")}
+
+    <h2 class="field--full form-section">Section 4 · Audience and logistics</h2>
+    {group("Intended audience (check all that apply)", "audience", audiences, True)}
+    {group("What grade band does your session primarily address? (select all that apply)", "grades", grades, True)}
+    {radios("Will you be able to present this session twice during the convening (for two different groups of participants)?", "present_twice", ["Yes", "No"])}
+    {group("Please indicate any AV or presentation needs (check all that apply)", "av", av)}
+    {field("Other AV needs (please specify)", "av_other", full=True)}
+    <div class="field field--full"><label for="f-handouts">Printed handouts file <span class="hint">(optional, PDF or Word, up to 4 MB)</span></label><input id="f-handouts" name="handouts" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" data-max-mb="4"></div>
+    {radios("Are you open to having your session recorded and/or materials shared with attendees after the Summit?", "recording", ["Yes", "No"])}
+  </div><p class="form-note">Deadline: {CFP_DEADLINE}. Questions: bmecsummit@nabme.org</p><div><button class="btn btn--red" type="submit">Submit my proposal {ARROW}</button></div></form>
+  {success("Proposal received.", "Thank you for submitting a proposal for the 2027 Black Male Educator Capital Summit. The Summit Committee will review every proposal after the December 14 deadline and follow up by email.", btn("Back to the Summit", "/summit", "outline"))}</div>
+</div></section>'''
+    page("/summit/proposals", "Call for Proposals", "Submit a proposal to present at the 2027 Black Male Educator Capital Summit, February 11–13 at Howard University. Due " + CFP_DEADLINE + ".", body, "programs")
 
 
 def build_nominate():
@@ -1423,6 +1591,6 @@ if __name__ == "__main__":
     build_home(); build_mission(); build_founders(); build_bios(); build_join(); build_contact()
     build_careers(); build_talent(); build_resume_bank(); build_employers(); build_jobs(); build_post_job()
     build_donate(); build_media(); build_blog(); build_events(); build_live(); build_partners()
-    build_athari(); build_summit(); build_nominate(); build_impact(); build_summit_register()
+    build_athari(); build_summit(); build_nominate(); build_impact(); build_summit_register(); build_summit_mission(); build_summit_proposals()
     write_support_files()
     print("built", len([f for f in os.listdir(OUT) if f.endswith(".html")]), "pages into", OUT)
