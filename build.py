@@ -1596,7 +1596,8 @@ def write_support_files():
         # after launch, the preview address forwards to nabme.org (keeps the printed QR code working)
         "redirects": ([{"source": "/:path*", "has": [{"type": "host", "value": h}], "destination": SITE_URL + "/:path*", "permanent": h.startswith("www")} for h in ("nabme-movement.vercel.app", "www.nabme.org")] if LIVE else [])
                      + [{"source": s, "destination": d, "permanent": True} for s, d in redirects]
-                     + [{"source": "/register", "destination": "/summit/register", "permanent": False}],
+                     + [{"source": "/register", "destination": "/summit/register", "permanent": False},
+                        {"source": "/proposals", "destination": "/summit/proposals", "permanent": False}],  # printed QR code targets
         "headers": [] if LIVE else [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}],
     }
     open(os.path.join(OUT, "vercel.json"), "w").write(json.dumps(vercel, indent=2))

@@ -133,6 +133,11 @@
       "source": "/register",
       "destination": "/summit/register",
       "permanent": false
+    },
+    {
+      "source": "/proposals",
+      "destination": "/summit/proposals",
+      "permanent": false
     }
   ],
   "headers": []
