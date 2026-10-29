@@ -760,7 +760,7 @@ html.motion-off *, html.motion-off *::before, html.motion-off *::after { transit
 }
 .v-c .vhero--split h1 { max-width: none; font-size: clamp(2.6rem, 4.7vw, 4.6rem); }
 .v-c .vhero--split h1 .red { display: block; }
-.card h3, .card p { overflow-wrap: anywhere; }
+.card h3, .card p { overflow-wrap: break-word; hyphens: manual; }
 .vhero h1 .red { display: block; }
 
 /* ---------- Instagram embeds (NABME Live) ---------- */
@@ -908,3 +908,13 @@ html.motion-off .strip__set[aria-hidden] { display: none; }
 /* Group registration note */
 .group-note { margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--red); background: var(--white); border-radius: 0 var(--r) var(--r) 0; font-size: .95rem; }
 .group-note a { color: var(--red); font-weight: 700; }
+/* 2026 session cards: five across on wide screens, with headings sized to fit whole words */
+.sessions-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.sessions-grid h3 { font-size: clamp(1.05rem, 1.35vw, 1.3rem); }
+@media (max-width: 1100px) { .sessions-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .sessions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .sessions-grid { grid-template-columns: 1fr; } }
+/* NABME Live account cards: web addresses wrap at the slash, not mid-word */
+.account-card h3 { font-size: clamp(1rem, 1.3vw, 1.2rem); overflow-wrap: anywhere; hyphens: none; }
+@media (max-width: 680px) { .account-card h3 { font-size: 1rem; } }
+@media (max-width: 460px) { .grid-4:has(.account-card) { grid-template-columns: 1fr; } }

@@ -228,6 +228,7 @@ def page(path, title, desc, body, active="", dark_head=False):
 </body>
 </html>
 '''
+    html_doc = re.sub(r"(?<=\d)–(?=\d)", "\u2060–\u2060", html_doc)  # word joiners: date ranges never wrap at the dash
     target = os.path.join(OUT, "index.html" if slug == "index" else f"{slug}.html")
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with open(target, "w", encoding="utf-8") as f:
@@ -970,12 +971,12 @@ def build_events():
 
 def build_live():
     accounts = [
-        ("Facebook page", "facebook.com/nabmeinc", "https://www.facebook.com/nabmeinc"),
+        ("Facebook page", "facebook.com/<wbr>nabmeinc", "https://www.facebook.com/nabmeinc"),
         ("Facebook group", "Join our community", "https://www.facebook.com/groups/751356851659519"),
         ("Instagram", "@nabmeinc", "https://www.instagram.com/nabmeinc"),
         ("LinkedIn", "NABME Inc", "https://www.linkedin.com/in/nabme-inc-50474a26a"),
     ]
-    acc = "".join(f'<a class="card card-link" href="{u}"{EXT}><p class="kicker red">{n}</p><h3>{h}</h3><span class="more">Follow {ARROW}</span></a>' for n, h, u in accounts)
+    acc = "".join(f'<a class="card card-link account-card" href="{u}"{EXT}><p class="kicker red">{n}</p><h3>{h}</h3><span class="more">Follow {ARROW}</span></a>' for n, h, u in accounts)
     filters = "".join(f'<span class="chip" style="border-color:var(--rule)">{f}</span>' for f in ["All", "NABME", "Community", "Summit", "Athari"])
     tiles = ig_grid(IG_WALL)
     body = f'''
@@ -1321,7 +1322,7 @@ def build_summit():
 
 <section class="section" aria-labelledby="sess-h"><div class="wrap">
   <div class="section-head">{eyebrow("2026 session highlights")}<h2 id="sess-h" class="h2">Sessions rated 4.88 / 5.</h2></div>
-  <div class="grid-4" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">{"".join(f'<article class="card card--bar{"-red" if i % 2 == 0 else ""}"><h3>{t}</h3><p>{d}</p></article>' for i, (t, d) in enumerate(sessions))}</div>
+  <div class="grid-4 sessions-grid">{"".join(f'<article class="card card--bar{"-red" if i % 2 == 0 else ""}"><h3>{t}</h3><p>{d}</p></article>' for i, (t, d) in enumerate(sessions))}</div>
   <p class="source" style="margin-top:16px">Average session ratings of 4.88 / 5 for relevance and for practical application.</p>
 </div></section>
 
