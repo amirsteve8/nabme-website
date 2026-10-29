@@ -77,6 +77,10 @@ REPORTS = {  # full decks, shared from NABME's Drive (viewable and downloadable)
     "summit": ("Black Male Educator Capital Summit Impact Report", "2026", "https://drive.google.com/file/d/1H1-17VrmlwpWDBQtUSE9XdSROzqbAvpx/view"),
 }
 PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=R6A7JGUC8FP32"
+SITE_URL = "https://nabme.org"
+LIVE = False  # launch switch: True = search engines can index, sitemap and analytics on, preview address forwards to nabme.org
+PAGES_BUILT = []  # filled by page(); used for sitemap.xml
+ANALYTICS = '\n<script defer src="/_vercel/insights/script.js"></script>' if LIVE else ""  # Vercel Web Analytics
 SUMMIT_START = "2027-02-11T08:00:00-05:00"  # countdown target: day one of Summit 2027
 SUMMIT_DATES = "February 11–13, 2027"
 SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be announced later
@@ -205,13 +209,15 @@ def page(path, title, desc, body, active="", dark_head=False):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{e(full)}</title>
 <meta name="description" content="{e(desc)}">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="{"index, follow" if LIVE else "noindex, nofollow"}">
+<link rel="canonical" href="{SITE_URL}{"" if path == "/" else path}">
+<meta property="og:url" content="{SITE_URL}{"" if path == "/" else path}">
 <meta name="theme-color" content="#f7f6f2">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="NABME">
 <meta property="og:title" content="{e(full)}">
 <meta property="og:description" content="{e(desc)}">
-<meta property="og:image" content="/assets/photos/s26-138.jpg">
+<meta property="og:image" content="{SITE_URL}/assets/photos/s26-138.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/seal.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -224,11 +230,12 @@ def page(path, title, desc, body, active="", dark_head=False):
 {body}
 </main>
 {footer()}
-<script src="/main.js?v={VER}" defer></script>
+<script src="/main.js?v={VER}" defer></script>{ANALYTICS}
 </body>
 </html>
 '''
     html_doc = re.sub(r"(?<=\d)–(?=\d)", "\u2060–\u2060", html_doc)  # word joiners: date ranges never wrap at the dash
+    PAGES_BUILT.append(path)
     target = os.path.join(OUT, "index.html" if slug == "index" else f"{slug}.html")
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with open(target, "w", encoding="utf-8") as f:
@@ -1577,17 +1584,26 @@ def write_support_files():
         ("/sponsors", "/partners"), ("/join-nabme-2", "/join"), ("/mission-and-values", "/mission"), ("/board-members", "/founders"),
         ("/nabme-fellowship-program", "/athari"), ("/resumes", "/resume-bank"), ("/give", "/donate"), ("/contact-us", "/contact"),
         ("/nabme-careersw", "/careers"), ("/talent-portal", "/talent"),
+        # the rest of the old WordPress site (from its sitemap, Oct 2026)
+        ("/my-jobs", "/jobs"), ("/submit-job", "/post-job"), ("/resumes-2", "/resume-bank"), ("/submit-resume", "/resume-bank"),
+        ("/candidate-dashboard", "/resume-bank"), ("/resume/:slug*", "/resume-bank"), ("/category/:slug*", "/blog"),
+        ("/author/:slug*", "/blog"), ("/feed", "/blog"), ("/wp-admin", "/"), ("/wp-login.php", "/"),
     ]
     vercel = {
         "cleanUrls": True,
         "trailingSlash": False,
         # /register is the printed QR code's target: a temporary redirect, so it can point at the live registration page later
-        "redirects": [{"source": s, "destination": d, "permanent": True} for s, d in redirects]
+        # after launch, the preview address forwards to nabme.org (keeps the printed QR code working)
+        "redirects": ([{"source": "/:path*", "has": [{"type": "host", "value": "nabme-movement.vercel.app"}], "destination": SITE_URL + "/:path*", "permanent": False}] if LIVE else [])
+                     + [{"source": s, "destination": d, "permanent": True} for s, d in redirects]
                      + [{"source": "/register", "destination": "/summit/register", "permanent": False}],
-        "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}],
+        "headers": [] if LIVE else [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}],
     }
     open(os.path.join(OUT, "vercel.json"), "w").write(json.dumps(vercel, indent=2))
-    open(os.path.join(OUT, "robots.txt"), "w").write("User-agent: *\nDisallow: /\n")
+    robots = f"User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: {SITE_URL}/sitemap.xml\n" if LIVE else "User-agent: *\nDisallow: /\n"
+    open(os.path.join(OUT, "robots.txt"), "w").write(robots)
+    urls = "".join(f"<url><loc>{SITE_URL}{'' if p == '/' else p}</loc></url>" for p in sorted(set(PAGES_BUILT)))
+    open(os.path.join(OUT, "sitemap.xml"), "w").write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
 
 
 if __name__ == "__main__":

@@ -53,6 +53,61 @@
       "permanent": true
     },
     {
+      "source": "/my-jobs",
+      "destination": "/jobs",
+      "permanent": true
+    },
+    {
+      "source": "/submit-job",
+      "destination": "/post-job",
+      "permanent": true
+    },
+    {
+      "source": "/resumes-2",
+      "destination": "/resume-bank",
+      "permanent": true
+    },
+    {
+      "source": "/submit-resume",
+      "destination": "/resume-bank",
+      "permanent": true
+    },
+    {
+      "source": "/candidate-dashboard",
+      "destination": "/resume-bank",
+      "permanent": true
+    },
+    {
+      "source": "/resume/:slug*",
+      "destination": "/resume-bank",
+      "permanent": true
+    },
+    {
+      "source": "/category/:slug*",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/author/:slug*",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/feed",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/wp-admin",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-login.php",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/register",
       "destination": "/summit/register",
       "permanent": false
