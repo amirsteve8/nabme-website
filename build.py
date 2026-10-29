@@ -335,7 +335,6 @@ PARTNERS = [
     ("City Teaching Alliance", "https://cityteachingalliance.org"),
     ("City Year Washington, DC", "https://www.cityyear.org/dc"),
     ("He Is Me Institute", "https://heisme.org"),
-    ("The Teachers' Lounge (Boston, MA)", "https://theteachersloungema.org"),
     ("Innovation for Equity", "https://innovationequity.org"),
 ]
 FUNDERS = [
