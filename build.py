@@ -88,7 +88,7 @@ SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be anno
     ("Friday", "Feb 12", "Black Boy Hackathon", "Students and educators build solutions together."),
     ("Saturday", "Feb 13", "Black Male Educator Capital Summit", "A full day of keynotes, breakouts and brotherhood at Howard University."),
 ]
-SUMMIT_REG_OPEN = False  # True turns Summit registration (and its $100 PayPal checkout) back on
+SUMMIT_REG_OPEN = True  # True turns Summit registration (and its $100 PayPal checkout) back on
 CFP_DEADLINE = "Monday, December 14, 2026"
 SUMMIT_FEE = "$100"
 SUMMIT_PAY_URL = "https://www.paypal.com/ncp/payment/NHRTEGF92R54N"  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
@@ -103,7 +103,7 @@ SOCIAL = [
 
 NAV = [
     ("Who We Are", "who", [("Mission & Values", "/mission", "Mission, vision and core beliefs"), ("Founders", "/founders", "The people behind the mission"), ("Our Impact", "/impact", "Impact reports, 2016–2026")]),
-    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C."), ("Call for Proposals", "/summit/proposals", "Present at the 2027 Summit · due Dec. 14")]),
+    ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C.")] + ([("Register for the Summit", "/summit/register", "Registration is open · " + SUMMIT_FEE + " per educator")] if SUMMIT_REG_OPEN else []) + [("Call for Proposals", "/summit/proposals", "Present at the 2027 Summit · due Dec. 14")]),
     ("Careers", "careers", [("Talent Portal", "/talent", "One portal, three ways in"), ("Resume Bank", "/resume-bank", "Free educator profile"), ("Employer Access", "/employers", "Search the talent"), ("Job Board", "/jobs", "Open positions")]),
     ("NABME News", "news", [("Blog", "/blog", "NABME Voices"), ("Media", "/media", "Coverage of NABME"), ("Events", "/events", "Upcoming and past"), ("NABME Live", "/live", "The movement, in real time")]),
     ("Partners", "partners", [("Partners & Funders", "/partners", "Who we build alongside and who supports the work")]),
@@ -260,7 +260,7 @@ def summit_days(heading_tag="h3"):
 
 def summit_announce():
     return f'''<section class="section band-dark summit-announce" aria-labelledby="sa-h"><div class="wrap">
-  <div class="section-head section-head--row"><div><p class="eyebrow">Summit 2027 · Save the dates</p><h2 id="sa-h" class="h2">{SUMMIT_DATES} <span class="red">·</span> Washington, D.C.</h2><p class="lede" style="margin-top:12px">Three days. One movement. The Black Male Educator Capital Summit grows into a full week of action.</p></div>{countdown_block(summit_register_btn("red"))}</div>
+  <div class="section-head section-head--row"><div><p class="eyebrow">Summit 2027 · {"Registration is open" if SUMMIT_REG_OPEN else "Save the dates"}</p><h2 id="sa-h" class="h2">{SUMMIT_DATES} <span class="red">·</span> Washington, D.C.</h2><p class="lede" style="margin-top:12px">Three days. One movement. The Black Male Educator Capital Summit grows into a full week of action.</p></div>{countdown_block(summit_register_btn("red"))}</div>
   {summit_days()}
 </div></section>'''
 
@@ -276,14 +276,14 @@ def summit_register_btn(kind="light"):
 
 
 def summit_tabs(active):
-    tabs = [("overview", "Overview", "/summit"), ("mission", "Mission, Strands & Goals", "/summit/mission"), ("proposals", "Call for Proposals", "/summit/proposals")]
+    tabs = [("overview", "Overview", "/summit"), ("mission", "Mission, Strands & Goals", "/summit/mission"), ("proposals", "Call for Proposals", "/summit/proposals")] + ([("register", "Register", "/summit/register")] if SUMMIT_REG_OPEN else [])
     cur = ' aria-current="page"'
     links = "".join(f'<a href="{h}"{cur if k == active else ""}>{t}</a>' for k, t, h in tabs)
     return f'<nav class="subnav" aria-label="Summit sections"><div class="wrap">{links}</div></nav>'
 
 
 def summit_banner(heading_tag="h2"):
-    return f'''<div class="summit-banner summit-banner--soon" id="register"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University.</p><p class="summit-fee">{f"<b>Registration is open.</b> {SUMMIT_FEE} per educator." if SUMMIT_REG_OPEN else f"<b>Call for proposals is open</b> through {CFP_DEADLINE}. Registration opens soon."}</p><div class="btn-row" style="margin-top:20px">{summit_register_btn("red")}</div></div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>{"Scan to register" if SUMMIT_REG_OPEN else "Scan for Summit details"}</b>Point your phone's camera at the code.</p></div></div></div>'''
+    return f'''<div class="summit-banner summit-banner--soon" id="register"><div><p class="eyebrow">Summit 2027 · {SUMMIT_DATES}</p><{heading_tag}>The Black Male Educator <span>Capital Summit</span> returns.</{heading_tag}><p class="lede" style="margin-top:14px">Thursday: Capitol Hill Fly-In. Friday: Black Boy Hackathon. Saturday: the Summit at Howard University.</p><p class="summit-fee">{f"<b>Registration is open.</b> {SUMMIT_FEE} per educator. The call for proposals is open through {CFP_DEADLINE}." if SUMMIT_REG_OPEN else f"<b>Call for proposals is open</b> through {CFP_DEADLINE}. Registration opens soon."}</p><div class="btn-row" style="margin-top:20px">{summit_register_btn("red")}{btn("Submit a proposal", "/summit/proposals", "outline") if SUMMIT_REG_OPEN else ""}</div></div><div class="summit-side"><div class="howard"><p>See you at</p>{howard_mark()}</div><div class="qr-card"><img src="/assets/qr-register.svg" alt="QR code to register for the Summit" width="120" height="120"><p><b>{"Scan to register" if SUMMIT_REG_OPEN else "Scan for Summit details"}</b>Point your phone's camera at the code.</p></div></div></div>'''
 
 
 def impact_band():
@@ -1284,13 +1284,13 @@ def build_summit():
 <section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
   {eyebrow("Summit 2027 · " + SUMMIT_DATES + " · Washington, D.C.")}
   <h1>The Black Male Educator <span class="red">Capital Summit</span></h1>
-  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. {"Registration is open: " + SUMMIT_FEE + " per educator." if SUMMIT_REG_OPEN else "The call for proposals is open through " + CFP_DEADLINE + "."}</p>
-  <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
+  <p class="lede" style="margin-top:16px">Three days in Washington, D.C.: the Capitol Hill Fly-In, the Black Boy Hackathon and the Summit at Howard University. {"Registration is open: " + SUMMIT_FEE + " per educator. The call for proposals is open through " + CFP_DEADLINE + "." if SUMMIT_REG_OPEN else "The call for proposals is open through " + CFP_DEADLINE + "."}</p>
+  <div class="btn-row" style="margin-top:26px">{summit_register_btn("red")}{btn("Submit a proposal", "/summit/proposals", "ghost") if SUMMIT_REG_OPEN else ""}<button class="btn btn--ghost" type="button" data-film>{ic("play")} Watch the 2026 Summit recap</button></div>
 </div></section>
 {summit_tabs("overview")}
 
 <section class="section band-dark" aria-labelledby="days-h"><div class="wrap">
-  <div class="section-head section-head--row"><div>{eyebrow("Save the dates")}<h2 id="days-h" class="h2">{SUMMIT_DATES}</h2></div>{countdown_block(buttons=False)}</div>
+  <div class="section-head section-head--row"><div>{eyebrow("Registration is open" if SUMMIT_REG_OPEN else "Save the dates")}<h2 id="days-h" class="h2">{SUMMIT_DATES}</h2></div>{countdown_block(buttons=False)}</div>
   {summit_days()}
 </div></section>
 
