@@ -1,5 +1,5 @@
-// Public job board feed: every submitted listing in Airtable's Job Posts table, within 60 days of being submitted and not past its deadline.
-// To take a listing down, set its Status to Expired in Airtable. Rows whose title or organization starts with TEST never show.
+// Public job board feed: listings set to Approved in Airtable's Job Posts table, within 60 days of being submitted and not past their deadline.
+// New submissions wait as Pending review. Rows whose title or organization starts with TEST never show.
 const TABLE = "Job Posts", DAYS_LIVE = 60;
 const json = (body, status = 200, cache = "public, s-maxage=60, stale-while-revalidate=300") => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": cache } });
 
@@ -17,7 +17,7 @@ export async function GET() {
   try {
     let offset;
     do {
-      const q = new URLSearchParams({ filterByFormula: "{Status}!='Expired'", pageSize: "100" });
+      const q = new URLSearchParams({ filterByFormula: "{Status}='Approved'", pageSize: "100" });
       if (offset) q.set("offset", offset);
       const res = await fetch(`https://api.airtable.com/v0/${base}/${encodeURIComponent(TABLE)}?${q}`, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) { console.error("Job board read failed", res.status, await res.text()); return json({ ok: false, jobs: [] }, 502, "no-store"); }
