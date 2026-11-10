@@ -38,7 +38,9 @@ export const TABLES = {
     ],
   },
   "Summit Registrations": {
-    status: ["Pending payment", "Paid", "Waitlist", "Cancelled"],
+    paidOnly: true,   // only api/summit-pay.js writes here, after PayPal confirms the payment
+    status: ["Paid", "Refunded", "Waitlist", "Cancelled"],
+    payment: [["PayPal order ID", "text"], ["PayPal capture ID", "text"], ["Amount paid", "text"], ["PayPal payer email", "email"]],
     fields: [
       ["name", "Name", "text"], ["email", "Email", "email"], ["phone", "Phone", "phone"],
       ["org", "School or organization", "text"], ["role", "Role", "text"], ["role_other", "Role (other)", "text"],
@@ -93,6 +95,7 @@ const TYPES = {
 };
 export function columns(def) {
   const cols = def.fields.map(([, name, type]) => ({ name, ...TYPES[type] }));
+  for (const [name, type] of def.payment || []) cols.push({ name, ...TYPES[type] });
   if (def.status) cols.push({ name: "Status", type: "singleSelect", options: { choices: def.status.map((name) => ({ name })) } });
   cols.push({ name: "Page", type: "url" });
   cols.push({ name: "Submitted at", type: "dateTime", options: { dateFormat: { name: "us" }, timeFormat: { name: "12hour" }, timeZone: "America/New_York" } });

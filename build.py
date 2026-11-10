@@ -91,7 +91,6 @@ SUMMIT_DAYS = [  # (weekday, date, event, description); more events will be anno
 SUMMIT_REG_OPEN = True  # True turns Summit registration (and its $100 PayPal checkout) back on
 CFP_DEADLINE = "Monday, December 14, 2026"
 SUMMIT_FEE = "$100"
-SUMMIT_PAY_URL = "https://www.paypal.com/ncp/payment/NHRTEGF92R54N"  # PayPal payment link for the $100 registration; when set, registrants continue to it after the form
 HOWARD_LOGO = "assets/logos/howard.png"  # shown in the Summit banner when the file exists
 
 SOCIAL = [
@@ -1358,8 +1357,7 @@ def build_summit():
 def build_summit_register():
     days = [f"{w}, {d}: {t}" for w, d, t, _ in SUMMIT_DAYS]
     day_boxes = "".join(f'<label class="check"><input type="checkbox" name="days" value="{e(x)}" checked> {e(x)}</label>' for x in days)
-    pay = SUMMIT_PAY_URL
-    note = ("After you submit, you'll continue to PayPal to pay the " + SUMMIT_FEE + " registration fee with a card or your PayPal account.") if pay else ("After you submit, NABME will email you a secure link to pay the " + SUMMIT_FEE + " registration fee.")
+    note = "You'll pay the " + SUMMIT_FEE + " fee on the next step with a card or PayPal. You are registered once your payment is complete."
     body = f'''
 <section class="phero phero--dark phero--photo wedge"><div class="phero__bg">{img("s26_aerial", eager=True, pos="center 40%")}</div><div class="wrap">
   <p class="crumbs"><a href="/summit" style="color:#fff">The Capital Summit</a> / Register</p>
@@ -1377,7 +1375,7 @@ def build_summit_register():
     <p class="group-note"><b>Registering a group?</b> If you are interested in a group registration purchase, email <a href="mailto:bmecsummit@nabme.org">bmecsummit@nabme.org</a>.</p>
     <p class="source" style="margin-top:14px">Questions? Email info@nabme.org.</p>
   </aside>
-  <div class="form-panel form-wrap"><form class="form" data-form="Summit Registrations"{f' data-redirect="{pay}"' if pay else ""}><div class="form-grid">
+  <div class="form-panel form-wrap"><form class="form" data-form="Summit Registrations" data-pay="/api/summit-pay"><div class="form-grid">
     <h2 class="field--full" style="font-size:1.25rem">About you</h2>
     {field("Full name", "name", required=True, auto="name")}
     {field("Email", "email", "email", required=True, auto="email")}
@@ -1395,8 +1393,8 @@ def build_summit_register():
     {field("Dietary needs", "dietary", placeholder="Vegetarian, allergies, etc.")}
     {field("Accessibility needs", "access", placeholder="Anything that helps you take part fully")}
     <div class="field field--full"><label class="check"><input type="checkbox" name="photo_consent" value="yes"> NABME may use photos and video of me from the Summit.</label></div>
-  </div><p class="form-note">{note}</p><div><button class="btn btn--red" type="submit">{"Continue to payment" if pay else "Register"} {ARROW}</button></div></form>
-  {success("You're registered.", ("Your spot is saved. Complete your " + SUMMIT_FEE + " payment on PayPal to confirm it.") if pay else ("Your spot is saved. Watch your inbox: NABME will email your " + SUMMIT_FEE + " payment link and Summit details."), btn("Back to the Summit", "/summit", "outline"))}</div>
+  </div><p class="form-note">{note}</p><div><button class="btn btn--red" type="submit">Continue to payment {ARROW}</button><div class="pay-step" hidden><p class="pay-title">Pay {SUMMIT_FEE} to complete your registration</p><div class="pay-buttons"></div><button class="pay-edit" type="button">Edit my details</button></div></div></form>
+  {success("You're registered.", "Your " + SUMMIT_FEE + " payment is complete and your spot is saved. PayPal is emailing your receipt.", btn("Back to the Summit", "/summit", "outline"))}</div>
 </div></section>'''
     if not SUMMIT_REG_OPEN:
         body = f'''

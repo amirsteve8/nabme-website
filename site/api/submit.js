@@ -1,7 +1,8 @@
 // Receives every website form and saves it to NABME's Airtable base.
 // Needs two environment variables in Vercel: AIRTABLE_TOKEN and AIRTABLE_BASE_ID.
 // Optional email alerts: RESEND_API_KEY, NOTIFY_FROM (a verified sender) and NOTIFY_TO (defaults to info@nabme.org).
-import { TABLES, MAX_FILE_BYTES, columns } from "./_schema.js";
+import { TABLES, MAX_FILE_BYTES } from "./_schema.js";
+import { saveRecord } from "./_airtable.js";
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
@@ -16,6 +17,7 @@ export async function POST(request) {
   const tableName = (form.get("_table") || "").toString();
   const table = TABLES[tableName];
   if (!table) return json({ ok: false, error: "Unknown form." }, 400);
+  if (table.paidOnly) return json({ ok: false, error: "This form is completed through checkout." }, 403); // saved by api/summit-pay.js after payment
 
   const fields = { "Page": (form.get("_page") || "").toString().slice(0, 200), "Submitted at": new Date().toISOString() };
   if (table.status) fields["Status"] = table.status[0];
@@ -33,34 +35,9 @@ export async function POST(request) {
     if (values.length) fields[column] = values.join(", ").slice(0, 10000);
   }
 
-  const api = `https://api.airtable.com/v0/${base}/${encodeURIComponent(tableName)}`;
-  const headers = { Authorization: `Bearer ${token}`, "content-type": "application/json" };
-  const save = () => fetch(api, { method: "POST", headers, body: JSON.stringify({ records: [{ fields }], typecast: true }) });
-  let res = await save();
-  if (res.status === 404 || res.status === 403) {
-    // A form added after setup: create its table once, then save again
-    const made = await fetch(`https://api.airtable.com/v0/meta/bases/${base}/tables`, { method: "POST", headers, body: JSON.stringify({ name: tableName, fields: columns(table) }) });
-    if (made.ok) res = await save();
-    else console.error("Could not create table", tableName, made.status, await made.text());
-  } else if (res.status === 422) {
-    // A question added to an existing form: create the missing columns once, then save again
-    const meta = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
-    const tables = await fetch(meta, { headers }).then((r) => r.json()).catch(() => ({}));
-    const found = tables.tables?.find((t) => t.name === tableName);
-    if (found) {
-      const have = new Set(found.fields.map((f) => f.name));
-      for (const col of columns(table).filter((c) => !have.has(c.name))) {
-        const r = await fetch(`${meta}/${found.id}/fields`, { method: "POST", headers, body: JSON.stringify(col) });
-        if (!r.ok) console.error("Could not add column", tableName, col.name, r.status, await r.text());
-      }
-      res = await save();
-    }
-  }
-  if (!res.ok) {
-    console.error("Airtable save failed", res.status, await res.text());
-    return json({ ok: false, error: "We couldn't save this right now." }, 502);
-  }
-  const recordId = (await res.json()).records?.[0]?.id;
+  const saved = await saveRecord(tableName, table, fields);
+  if (!saved.ok) return json({ ok: false, error: "We couldn't save this right now." }, 502);
+  const recordId = saved.id;
 
   // Files (resume, headshot, logo) go straight into the record's attachment column
   for (const [column, f] of files) {

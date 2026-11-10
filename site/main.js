@@ -299,6 +299,62 @@
   };
   const tooBig = (form) => $$('input[type="file"][data-max-mb]', form).find((inp) => inp.files[0] && inp.files[0].size > inp.dataset.maxMb * 1048576);
 
+  // Paid checkout: the form is checked first, then PayPal takes the payment, and the server saves the registration only after it's confirmed
+  const loadPayPal = (id) => window.paypal ? Promise.resolve() : new Promise((ok, no) => {
+    const s = document.createElement("script");
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(id)}&currency=USD&intent=capture&components=buttons&disable-funding=paylater,venmo`;
+    s.onload = ok; s.onerror = no; document.head.appendChild(s);
+  });
+  const payCall = async (form, action, extra = {}) => {
+    const data = new FormData(form);
+    data.set("_action", action); data.set("_page", location.pathname);
+    Object.entries(extra).forEach(([k, v]) => data.set(k, v));
+    const res = await fetch(form.dataset.pay, { method: "POST", body: data });
+    return res.json().catch(() => ({ ok: false }));
+  };
+  const showPayment = async (form, wrap, note) => {
+    const btn = $("button[type=submit]", form), step = $(".pay-step", form), grid = $(".form-grid", form);
+    const label = btn.innerHTML;
+    btn.disabled = true; btn.textContent = "One moment…";
+    const reset = () => { btn.disabled = false; btn.innerHTML = label; };
+    try {
+      if (!form.dataset.payReady) {
+        const cfg = await fetch(form.dataset.pay).then((r) => r.json());
+        if (!cfg.ready) throw new Error("not ready");
+        await loadPayPal(cfg.clientId);
+        await window.paypal.Buttons({
+          style: { layout: "vertical", color: "gold", shape: "rect", label: "pay" },
+          createOrder: async () => {
+            note.textContent = "";
+            const r = await payCall(form, "create");
+            if (!r.ok) throw new Error(r.error || "");
+            return r.id;
+          },
+          onApprove: async (d, actions) => {
+            step.classList.add("is-working");
+            const r = await payCall(form, "capture", { orderID: d.orderID });
+            step.classList.remove("is-working");
+            if (r.retry) { note.textContent = r.error; return actions.restart(); }
+            if (!r.ok) { note.textContent = r.error || "The payment didn't go through. Please email bmecsummit@nabme.org."; return; }
+            const saveKey = form.closest("[data-save]")?.dataset.save;
+            if (saveKey) try { localStorage.removeItem("nabme-form-" + saveKey); } catch {}
+            wrap.classList.add("is-done");
+            const s = $(".success", wrap); if (s) { s.setAttribute("tabindex", "-1"); s.focus(); s.scrollIntoView({ block: "center" }); }
+          },
+          onCancel: () => { note.textContent = "Payment canceled. You are not registered until the payment is complete."; },
+          onError: (err) => { note.textContent = (err && err.message && !/^[A-Z_]+$/.test(err.message) && err.message.length < 200 ? err.message + " " : "We couldn't start the payment. ") + "Please try again, or email bmecsummit@nabme.org."; },
+        }).render($(".pay-buttons", form));
+        form.dataset.payReady = "1";
+        $(".pay-edit", form).addEventListener("click", () => { step.hidden = true; btn.hidden = false; grid.inert = false; note.textContent = ""; });
+      }
+      reset(); btn.hidden = true; step.hidden = false; grid.inert = true;
+      step.scrollIntoView({ block: "center" });
+    } catch {
+      reset();
+      note.textContent = "Online payment isn't available right now. Please try again shortly, or email bmecsummit@nabme.org.";
+    }
+  };
+
   // Submit handling for every NABME form
   $$("form[data-form]").forEach((form) => {
     form.noValidate = true;
@@ -314,6 +370,7 @@
       if (!validateScope(form)) return;
       const big = tooBig(form);
       if (big) { note.textContent = "That file is larger than 4 MB. Please choose a smaller file."; big.focus(); return; }
+      if (form.dataset.pay) { showPayment(form, wrap, note); return; }
       const btn = $("button[type=submit]", form);
       const label = btn ? btn.innerHTML : "";
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
