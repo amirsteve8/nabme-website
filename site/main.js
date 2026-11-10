@@ -449,7 +449,7 @@
   };
   const inState = (job, state) => {
     const where = job.location + " " + job.remote;
-    if (state === "DC") return /\b(DC|D\.C\.|Washington)\b/i.test(where);
+    if (state === "DC") return /\b(DC|D\.C\.)(?![a-z])/i.test(where);
     if (state === "Maryland") return /\b(Maryland|MD)\b/.test(where);
     if (state === "Virginia") return /(?<!West )\b(Virginia|VA)\b/.test(where);
     if (state === "Remote") return /remote/i.test(job.remote) || /remote/i.test(job.location);
