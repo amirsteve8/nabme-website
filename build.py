@@ -726,7 +726,8 @@ def build_careers():
 <section class="section" aria-labelledby="paths-h"><div class="wrap"><div class="section-head">{eyebrow("Four paths into the work")}<h2 id="paths-h" class="h2">Find where you fit.</h2></div><div class="grid-4">{pc}</div></div></section>
 <section class="section band-stone" aria-labelledby="open-h"><div class="wrap">
   <div class="section-head section-head--row"><div>{eyebrow("Open positions")}<h2 id="open-h" class="h2">The newest roles for Black male educators.</h2></div>{btn("See all jobs", "/jobs", "outline")}</div>
-  <div class="empty">{ic("briefcase")}<h3>New positions are on the way.</h3><p>Schools and organizations post openings through NABME's Job Board. The six newest will appear here.</p><div class="btn-row">{btn("Post a position", "/post-job")}{btn("Get new-job alerts", "/resume-bank", "outline")}</div></div>
+  <div class="jobs" data-jobs-latest></div>
+  <div class="empty" data-jobs-empty>{ic("briefcase")}<h3>New positions are on the way.</h3><p>Schools and organizations post openings through NABME's Job Board. The six newest will appear here.</p><div class="btn-row">{btn("Post a position", "/post-job")}{btn("Get new-job alerts", "/resume-bank", "outline")}</div></div>
 </div></section>
 {closing("Let schools that want you find you.", "Build your profile once. Get found by schools and organizations that are looking for Black male educators.", btn("Create my profile", "/resume-bank", "light"))}
 <section class="section"><div class="wrap" style="max-width:900px"><figure class="qcard qcard--paper"><div class="qmark" aria-hidden="true">“</div><blockquote>The most valuable things about the Athari Fellowship have been the proximity and the protection. The power of these two things have been the key driving forces for both development and healing.</blockquote><figcaption><cite>Athari Fellow, Cohort 2</cite></figcaption></figure></div></section>
@@ -839,20 +840,21 @@ def build_jobs():
 <section class="section"><div class="wrap">
   <form class="filters" data-jobsearch role="search" aria-label="Search jobs">
     <div class="field"><label for="j-k">Keywords</label><input id="j-k" type="search" name="q" placeholder="Title, subject or school"></div>
-    <div class="field"><label for="j-r">Role</label><select id="j-r"><option>All roles</option><option>Teacher</option><option>Dean</option><option>Assistant principal</option><option>Principal</option><option>Coach</option><option>Central office</option></select></div>
-    <div class="field"><label for="j-g">Grade band</label><select id="j-g"><option>All grades</option><option>K–5</option><option>6–8</option><option>9–12</option></select></div>
+    <div class="field"><label for="j-r">Role</label><select id="j-r"><option>All roles</option><option>Teacher</option><option>Dean</option><option>Assistant principal</option><option>Principal</option><option>Coach</option><option>Counselor</option><option>Operations</option><option>Central office</option><option>Other</option></select></div>
+    <div class="field"><label for="j-g">Grade band</label><select id="j-g"><option>All grades</option><option>K–5</option><option>6–8</option><option>9–12</option><option>K–12</option><option>Adult / higher ed</option></select></div>
     <div class="field"><label for="j-s">State</label><select id="j-s"><option>All states</option><option>DC</option><option>Maryland</option><option>Virginia</option><option>Remote</option></select></div>
     <button class="btn btn--red" type="submit">Search jobs</button>
   </form>
   <p class="inline-msg" data-jobs-msg aria-live="polite"></p>
-  <div class="empty" style="margin-top:20px">{ic("briefcase")}<h3>No open positions yet.</h3><p>NABME reviews every listing before it goes live. Listings stay up for 60 days, and the newest jobs go out in a weekly email to the Resume Bank.</p><div class="btn-row">{btn("Post the first position", "/post-job")}{btn("Get new-job alerts", "/resume-bank", "outline")}</div></div>
+  <div class="jobs" data-jobs-list></div>
+  <div class="empty" data-jobs-empty style="margin-top:20px">{ic("briefcase")}<h3>No open positions yet.</h3><p>Listings go live as soon as they're submitted and stay up for 60 days, and the newest jobs go out in a weekly email to the Resume Bank.</p><div class="btn-row">{btn("Post the first position", "/post-job")}{btn("Get new-job alerts", "/resume-bank", "outline")}</div></div>
 </div></section>'''
     page("/jobs", "Job Board", "Jobs for Black male educators: teaching and leadership roles posted by schools and organizations through NABME.", body, "careers")
 
 
 def build_post_job():
     body = f'''
-<section class="phero"><div class="wrap">{eyebrow("Talent Portal · For employers · Per post")}<h1>Post your opening where <span class="red">Black male educators</span> are already looking.</h1><p class="lede">Posting is free during launch. NABME approves each listing before it goes live; listings run for 60 days with an option to renew.</p></div></section>
+<section class="phero"><div class="wrap">{eyebrow("Talent Portal · For employers · Per post")}<h1>Post your opening where <span class="red">Black male educators</span> are already looking.</h1><p class="lede">Posting is free during launch. Your listing goes live on the Job Board as soon as you submit it and runs for 60 days.</p></div></section>
 <section class="section"><div class="wrap" style="max-width:900px"><div class="form-panel form-wrap"><form class="form" data-form="Job Posts"><div class="form-grid">
   {field("Job title", "title", required=True)}
   {field("Organization", "org", required=True, auto="organization")}
@@ -866,8 +868,8 @@ def build_post_job():
   {field("How to apply (email or URL)", "apply", required=True)}
   {field("Application deadline", "deadline", "date")}
   <div class="field"><label for="f-logo">Logo <span class="hint">(optional)</span></label><input id="f-logo" name="logo" type="file" accept="image/*" data-max-mb="4"></div>
-</div><p class="form-note">NABME reviews every listing before it goes live and emails you when it's up.</p><div><button class="btn btn--red" type="submit">Submit for review</button></div></form>
-{success("Listing submitted.", "NABME will review your listing and email you when it's live on the Job Board.", btn("Back to the Talent Portal", "/talent", "outline"))}</div></div></section>'''
+</div><p class="form-note">Your listing appears on the Job Board within a few minutes of submitting.</p><div><button class="btn btn--red" type="submit">Post this job</button></div></form>
+{success("Your job is posted.", "It will appear on the Job Board within a few minutes.", btn("See the Job Board", "/jobs", "outline"))}</div></div></section>'''
     page("/post-job", "Post a Job", "Post teaching and leadership openings for Black male educators on NABME's Job Board.", body, "careers")
 
 

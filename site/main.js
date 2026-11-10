@@ -417,9 +417,66 @@
   });
   $$("form[data-inline]").forEach(addTrap);
 
-  // ---------- Job board filters (no listings yet) ----------
-  const jobForm = $("[data-jobsearch]");
-  if (jobForm) jobForm.addEventListener("submit", (e) => { e.preventDefault(); const out = $("[data-jobs-msg]"); out && (out.textContent = "No openings match yet. New positions are reviewed by NABME and posted here."); });
+  // ---------- Job board: approved listings from Airtable ----------
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
+  const applyLink = (apply) => {
+    const v = (apply || "").trim();
+    if (/^https?:\/\/\S+$/i.test(v)) return v;
+    if (/^www\.\S+\.\S+$/i.test(v)) return "https://" + v;
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "mailto:" + v;
+    return null;
+  };
+  const longDate = (d) => { const t = new Date(d + "T12:00:00"); return isNaN(t) ? d : t.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); };
+  const jobCard = (job) => {
+    const card = el("article", "job");
+    const head = el("div", "job__head");
+    if (job.logo && /^https:\/\//.test(job.logo)) { const img = el("img", "job__logo"); img.src = job.logo; img.alt = ""; img.loading = "lazy"; head.appendChild(img); }
+    const title = el("div", "job__title");
+    title.append(el("h3", "", job.title), el("p", "", [job.org, job.location].filter(Boolean).join(" · ")));
+    head.appendChild(title); card.appendChild(head);
+    const meta = el("ul", "job__meta");
+    [job.category, job.type, job.remote, job.grades, job.salary].filter(Boolean).forEach((m) => meta.appendChild(el("li", "", m)));
+    card.appendChild(meta);
+    const more = el("details", "job__more");
+    more.appendChild(el("summary", "", "View details"));
+    more.appendChild(el("p", "job__desc", job.desc));
+    if (job.deadline) more.appendChild(el("p", "job__deadline", "Apply by " + longDate(job.deadline)));
+    const href = applyLink(job.apply);
+    if (href) { const a = el("a", "btn btn--red", "Apply"); a.href = href; if (href.startsWith("http")) { a.target = "_blank"; a.rel = "noopener nofollow"; } more.appendChild(a); }
+    else if (job.apply) more.appendChild(el("p", "job__apply", "How to apply: " + job.apply));
+    card.appendChild(more);
+    return card;
+  };
+  const inState = (job, state) => {
+    const where = job.location + " " + job.remote;
+    if (state === "DC") return /\b(DC|D\.C\.|Washington)\b/i.test(where);
+    if (state === "Maryland") return /\b(Maryland|MD)\b/.test(where);
+    if (state === "Virginia") return /(?<!West )\b(Virginia|VA)\b/.test(where);
+    if (state === "Remote") return /remote/i.test(job.remote) || /remote/i.test(job.location);
+    return true;
+  };
+  const plain = (t) => (t || "").replace(/\u2060/g, "");   // the site adds invisible word joiners around dashes in number ranges
+  const inGrade = (job, grade) => { const g = plain(job.grades), want = plain(grade); return g === want || (g === "K–12" && ["K–5", "6–8", "9–12"].includes(want)); };
+  const jobList = $("[data-jobs-list]"), jobLatest = $("[data-jobs-latest]");
+  if (jobList || jobLatest) {
+    const host = jobList || jobLatest, empty = host.parentElement.querySelector("[data-jobs-empty]");
+    fetch("/api/jobs").then((r) => r.ok ? r.json() : Promise.reject()).then(({ jobs }) => {
+      if (!jobs.length) return;
+      empty && (empty.hidden = true);
+      if (jobLatest) { jobs.slice(0, 6).forEach((j) => jobLatest.appendChild(jobCard(j))); return; }
+      const form = $("[data-jobsearch]"), out = $("[data-jobs-msg]");
+      const draw = () => {
+        const k = $("#j-k").value.trim().toLowerCase(), role = $("#j-r").value, grade = $("#j-g").value, state = $("#j-s").value;
+        const hits = jobs.filter((j) => (!k || [j.title, j.org, j.location, j.desc, j.category].join(" ").toLowerCase().includes(k))
+          && (role === "All roles" || plain(j.category) === plain(role)) && (grade === "All grades" || inGrade(j, grade)) && (state === "All states" || inState(j, state)));
+        jobList.replaceChildren(...hits.map(jobCard));
+        out.textContent = hits.length === jobs.length ? "" : hits.length ? `${hits.length} of ${jobs.length} open positions` : "No openings match that search. Try fewer filters.";
+      };
+      form.addEventListener("submit", (e) => { e.preventDefault(); draw(); });
+      form.addEventListener("input", draw);
+      draw();
+    }).catch(() => { const out = $("[data-jobs-msg]"); out && (out.textContent = "We couldn't load the latest jobs. Please refresh the page."); });
+  }
 
   // ---------- One newsletter pop-up: after 30s or on exit intent, desktop only ----------
   const pop = $("#newsletter-pop");

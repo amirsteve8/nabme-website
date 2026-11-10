@@ -932,3 +932,20 @@ html.motion-off .strip__set[aria-hidden] { display: none; }
 .pay-title { font-weight:600; }
 .pay-edit { justify-self:start; padding:0; border:0; background:none; color:inherit; font:inherit; font-size:.95rem; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .pay-step[hidden], .form .btn[hidden] { display:none; }
+
+/* Job listings */
+.jobs { display: grid; gap: 12px; margin-top: 20px; }
+.jobs:empty { display: none; }
+.empty[hidden] { display: none; }
+.job { display: grid; gap: 12px; padding: clamp(18px, 2.4vw, 26px); background: var(--white); border: 1px solid var(--rule); border-radius: var(--r); }
+.job__head { display: flex; align-items: center; gap: 14px; }
+.job__logo { width: 52px; height: 52px; object-fit: contain; flex: none; border-radius: 8px; }
+.job__title { min-width: 0; }
+.job__title h3 { font-size: 1.3rem; overflow-wrap: anywhere; }
+.job__title p { color: var(--muted); overflow-wrap: anywhere; }
+.job__meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.job__meta li { padding: 3px 10px; border-radius: 99px; background: var(--paper); border: 1px solid var(--rule); font-size: .85rem; font-weight: 500; }
+.job__more summary { cursor: pointer; font-weight: 600; color: var(--red); width: fit-content; }
+.job__desc { margin-top: 12px; max-width: 70ch; white-space: pre-line; overflow-wrap: anywhere; }
+.job__deadline, .job__apply { margin-top: 10px; color: var(--muted); overflow-wrap: anywhere; }
+.job__more .btn { margin-top: 14px; }
