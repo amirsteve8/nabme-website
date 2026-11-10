@@ -28,6 +28,8 @@ cd site && vercel deploy --prod --name nabme-movement
 | --- | --- |
 | `AIRTABLE_TOKEN` | Airtable access token (scopes: data.records:write, schema.bases:read, schema.bases:write) |
 | `AIRTABLE_BASE_ID` | The base ID, starting with `app` |
+| `PAYPAL_CLIENT_ID` | NABME's PayPal Live app Client ID, for Summit checkout (set with `bash scripts/connect-paypal.sh`) |
+| `PAYPAL_CLIENT_SECRET` | The matching Live Secret |
 | `RESEND_API_KEY`, `NOTIFY_FROM`, `NOTIFY_TO` | Optional email alerts for new form entries |
 
 Never commit these values.

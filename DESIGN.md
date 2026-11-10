@@ -66,7 +66,7 @@ Build each version with `NABME_VARIANT=a|b|c python3 build.py`. Version A output
 
 ## Client round 2 (Oct 20, 2026)
 - Summit 2027 details are hidden until release: no dates, countdown or calendar file. The banner reads "Summit 2027 · Info coming soon" with "See you at Howard University". Put Howard's logo at `site/assets/logos/howard.png` and it replaces the text automatically.
-- Summit registration: paste the payment or registration link into `SUMMIT_REGISTER` in `build.py`, and "Register for the Summit" buttons appear in the Summit hero, banner and closing band.
+- Summit registration: live. The form and PayPal checkout run on the registration page. `site/api/summit-pay.js` saves a row to Airtable's Summit Registrations table only after PayPal confirms the $100 payment; if the save fails, the payment is refunded automatically. `SUMMIT_REG_OPEN` in `build.py` turns registration off.
 - Employer payments are off for now: employer access and job posts are free during launch, with no plans, prices or checkout fields.
 - Partner and funder logos: put a file named after the organization (for example `site/assets/logos/education-forward-dc.png`) and its tile shows the logo instead of the name.
 - Role picker: `ROLES` in `build.py`, PreK through university plus "Other" with a text box. Used on Join and the Resume Bank.
