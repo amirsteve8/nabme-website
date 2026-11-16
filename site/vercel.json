@@ -45,6 +45,11 @@
       "permanent": true
     },
     {
+      "source": "/team",
+      "destination": "/staff",
+      "permanent": true
+    },
+    {
       "source": "/nabme-fellowship-program",
       "destination": "/athari",
       "permanent": true

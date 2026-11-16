@@ -101,7 +101,7 @@ SOCIAL = [
 ]
 
 NAV = [
-    ("Who We Are", "who", [("Mission & Values", "/mission", "Mission, vision and core beliefs"), ("Founders", "/founders", "The people behind the mission"), ("Our Impact", "/impact", "Impact reports, 2016–2026")]),
+    ("Who We Are", "who", [("Mission & Values", "/mission", "Mission, vision and core beliefs"), ("Founders", "/founders", "The people behind the mission"), ("Our Staff", "/staff", "The team that runs NABME"), ("Our Impact", "/impact", "Impact reports, 2016–2026")]),
     ("Programs", "programs", [("Athari Fellowship", "/athari", "Two-year leadership program"), ("Capital Summit", "/summit", "Feb. 11–13, 2027 · Washington, D.C.")] + ([("Register for the Summit", "/summit/register", "Registration is open · " + SUMMIT_FEE + " per educator")] if SUMMIT_REG_OPEN else []) + [("Call for Proposals", "/summit/proposals", "Present at the 2027 Summit · due Dec. 14")]),
     ("Careers", "careers", [("Talent Portal", "/talent", "One portal, three ways in"), ("Resume Bank", "/resume-bank", "Free educator profile"), ("Employer Access", "/employers", "Search the talent"), ("Job Board", "/jobs", "Open positions")]),
     ("NABME News", "news", [("Blog", "/blog", "NABME Voices"), ("Media", "/media", "Coverage of NABME"), ("Events", "/events", "Upcoming and past"), ("NABME Live", "/live", "The movement, in real time")]),
@@ -653,6 +653,47 @@ def build_bios():
         page("/" + slug, name, f"{name}, {role} of the National Association of Black Male Educators: biography.", body, "who")
 
 
+STAFF = [  # name, role, current work, bio page, photo, initials, bio paragraphs (None = uses the founder bio page)
+    ("Dr. Rictor L. Craig, Jr.", "Founder & CEO", "Co-Founder and Head of Schools, Statesmen College Preparatory Academy for Boys", "/craig-bio", "/assets/photos/founder-craig.jpg", "RC", None),
+    ("Shawn Hardnett", "President & Chief Academic Officer", "Founder and CEO, Statesmen College Preparatory Academy for Boys", "/hardnett-bio", "/assets/photos/staff-hardnett.jpg", "SH", [
+        "Shawn Hardnett is above all a teacher. He was a lead teacher for 15 years, serving all grades in elementary and middle school. He knows well the challenges of the communities he serves. Of the 29 boys who grew up on his block, 19 went to prison, 7 are dead and 5 graduated from high school, while only one, Shawn, finished college.",
+        "After 7 years teaching in the very middle school he graduated from, he went on to support the founding of two schools with KIPP, including its first single-gender academy. From there, he moved to our nation's capital to engage in education reform where the greatest educational needs exist. That experience propelled him into a higher level of service: teaching the adults who teach the children, and then the administrators who serve them.",
+        "In more than 20 years as a teacher, dean, principal, school founder, leadership coach, principal manager, executive director and academic superintendent, his work has helped turn around outcomes for countless children from every background. He is now the CEO and Founder of Statesmen College Preparatory Academy for Boys PCS in Washington, DC, the first in what may become a series of single-gender and boy-friendly schools that will serve male scholars impacted by urban poverty all over the United States and beyond.",
+    ]),
+    ("Jarrell Pittman", "Director, Athari Fellowship", "Director of Academics, Commanders Junior Youth Academy", "/pittman-bio", "/assets/photos/staff-pittman.jpg", "JP", [
+        "Jarrell Pittman is an educator and creative entrepreneur from Prince George's County, MD, dedicated to storytelling across various mediums. With KIPP DC, he has advanced from Fourth Grade Teacher and Grade-Level Chair to a key role on the Student Support team. As the PBIS Coordinator and Restorative Practices Teacher, he shapes school culture and facilitates school-wide programs and events, all while centering the teaching of life skills, conflict resolution and emotional regulation.",
+        "He recently embarked on a new journey as the Director of Academics for the Commanders Junior Youth Academy, a pilot program partnership between KIPP DC and the Washington Commanders that combines high-impact tutoring, a flag-football skills clinic, and character and social development. He is an alum of NABME's Athari Fellowship and of the inaugural cohort of the Kaya Henderson Mid-Level Leaders program, where he continues his lifelong pursuit of growth and development.",
+        "Outside the classroom, Jarrell works with arts-based nonprofits to develop educational programs for children and adults. He also leads Tha Griotsphere Productions, a company that combines storytelling, teaching and media to offer audiovisual services, workshops and programs, both virtually and in person. Through Tha Griotsphere, Jarrell collaborates with numerous organizations on both commissioned and in-house projects. He also serves on the board of Rhythm Visions Production Company, a nonprofit dedicated to arts equity and social justice.",
+        "Whether performing as an emcee or teaching in the classroom, Jarrell's mission is to inspire others to explore their own stories and embrace their personal journeys.",
+    ]),
+    ("Anthony Whaley", "Director of Programs & Professional Learning", "Director of Literacy, Ingenuity Prep", "/whaley-bio", "/assets/photos/staff-whaley.jpg", "AW", [
+        "Anthony Whaley is an educational leader and early literacy champion committed to elevating instruction, cultivating joyful school cultures, and creating belonging for educators and families.",
+        "With over a decade of experience as an award-winning educator, dean, principal and vice principal across traditional districts and charter networks, Anthony leads at the intersection of culture and instruction. Currently serving as Director of Literacy at Ingenuity Prep in Washington, DC, he is passionate about accelerating student achievement and developing transformational educators.",
+    ]),
+]
+
+
+def build_staff():
+    cards = "".join(f'<article class="person"><figure>{headshot(photo, name, ini)}</figure><p class="eyebrow" style="margin:0">{e(role)}</p><h3>{e(name)}</h3><p>{e(work)}</p><a class="text-link text-link--red" href="{bio}">View full bio {ARROW}</a></article>' for name, role, work, bio, photo, ini, _ in STAFF)
+    body = f'''
+<section class="phero"><div class="wrap">
+  {eyebrow("Who we are · Our staff")}
+  <h1>The team that runs <span class="red">NABME</span>.</h1>
+  <p class="lede">Educators and school leaders who know the work firsthand, building the pipeline of Black male educators every day.</p>
+</div></section>
+<section class="section"><div class="wrap"><div class="people people--4">{cards}</div></div></section>
+{closing("Want to work alongside us?", "", btn("Join NABME", "/join", "light") + btn("Contact us", "/contact", "ghost", False))}
+'''
+    page("/staff", "Our Staff", "Meet NABME's staff: Dr. Rictor L. Craig, Jr., Shawn Hardnett, Jarrell Pittman and Anthony Whaley.", body, "who")
+    for name, role, work, bio, photo, ini, paras in STAFF:
+        if paras is None: continue
+        body = f'''
+<section class="phero"><div class="wrap"><p class="crumbs"><a href="/staff">Our Staff</a> / {e(name)}</p>{eyebrow(role)}<h1>{e(name)}</h1><p class="lede">{e(work)} · Washington, DC</p></div></section>
+<section class="section"><div class="wrap bio-layout"><figure><div>{headshot(photo, name, ini)}</div><figcaption>{e(name)}, {e(role)} of the National Association of Black Male Educators</figcaption></figure><div class="prose">{"".join(f"<p>{e(x)}</p>" for x in paras)}<p style="margin-top:28px"><a class="text-link text-link--red" href="/staff">Meet the rest of the staff {ARROW}</a></p></div></div></section>
+'''
+        page(bio, name, f"{name}, {role} of the National Association of Black Male Educators: biography.", body, "who")
+
+
 def build_join():
     body = f'''
 <section class="phero phero--split"><div class="wrap">
@@ -912,18 +953,18 @@ MEDIA_CARDS = [
     ("2016 Healthy School Hero: Rictor Craig", "Action for Healthy Kids", "Oct. 12, 2016", "Award story", "Dr. Craig's school wellness work at Friendship Woodridge.", "https://actionforhealthykids.org/story/2016-healthy-school-hero-rictor-craig/"),
     ("BE Modern Man: “The Progressive Educator,” Rictor Craig", "Black Enterprise", "May 11, 2016", "Profile", "Dr. Craig and NABME's founding.", "https://www.blackenterprise.com/modern-man-progressive-educator-rictor-craig/"),
 ]
-MEDIA_MORE = [  # links still to collect from Rick / the handoff team
-    ("Mar. 11, 2026", "Pahara Announces 2026 Pahara Fellowship Cohorts", "Pahara Institute · Shawn Hardnett named to the Leaf Cohort", ""),
-    ("Nov. 12, 2025", "Thrive Dispatches S2E5: Love As An Operational Strategy", "Georgetown Thrive Center · Shawn Hardnett · Podcast", ""),
-    ("Apr. 10, 2024", "Black male educators deserve support. That's where NABME comes in.", "Education Forward DC · NABME, Dr. Craig, Joseph Speight, Shawn Hardnett", ""),
-    ("2023", "A first-class educational experience", "Education Forward DC · Statesmen; Shawn Hardnett quoted", ""),
-    ("Sep. 17, 2021", "Building D.C. schools that serve all students and support all educators", "The Washington Post · Op-ed co-written by Dr. Craig", ""),
-    ("c. Aug. 2020", "“We've had a social justice summer”", "WUSA9 · Statesmen's KINGS 101 · TV news", ""),
-    ("May 4, 2020", "LTL Ep. 4: The Boy Crisis in Our Schools", "Project Forever Free · Shawn Hardnett · Podcast", ""),
-    ("c. 2019", "“For black and brown boys”", "WUSA9 · Shawn Hardnett and Dr. Rictor Craig as founders · TV news", ""),
-    ("c. Aug. 2018", "80 black men greet boys on first day of school in emotional video", "WUSA9 · Dr. Rictor Craig and Shawn Hardnett", "https://wusa9.com/article/news/local/dc/dc-charter-school-changing-way-students-of-color-are-educated/65-bd2d97c6-6b94-4686-8a8e-ae1a32500b24"),
-    ("Sep. 28, 2017", "With New Middle School for DC Boys, Shawn Hardnett Follows His North Star", "Education Forward DC · Profile", ""),
-    ("Jan. 20, 2013", "Young students reflect on growing up with Obama as president", "TheGrio · Dr. Craig as principal", ""),
+MEDIA_MORE = [
+    ("Mar. 11, 2026", "Pahara Announces 2026 Pahara Fellowship Cohorts", "Pahara Institute · Shawn Hardnett named to the Leaf Cohort", "https://www.pahara.org/post/pahara-announces-2026-pahara-fellowship-cohorts"),
+    ("Nov. 12, 2025", "Thrive Dispatches S2E5: Love As An Operational Strategy", "Georgetown Thrive Center · Shawn Hardnett · Podcast", "https://podcasts.apple.com/us/podcast/love-as-an-operational-strategy-with-shawn-hardnett/id1794813986?i=1000736435800"),
+    ("Apr. 10, 2024", "Black male educators deserve support. That's where NABME comes in.", "Education Forward DC · NABME, Dr. Craig, Joseph Speight, Shawn Hardnett", "https://edforwarddc.org/black-male-educators-deserve-support-thats-where-nabme-comes-in/"),
+    ("2023", "A first-class educational experience", "Education Forward DC · Statesmen; Shawn Hardnett quoted", "https://edforwarddc.org/spotlights/a-first-class-educational-experience/"),
+    ("Sep. 17, 2021", "Building D.C. schools that serve all students and support all educators", "The Washington Post · Op-ed co-written by Dr. Craig", "https://www.washingtonpost.com/opinions/2021/09/17/building-dc-schools-that-serve-all-students-support-all-educators/"),
+    ("c. Aug. 2020", "“We've had a social justice summer”", "WUSA9 · Statesmen's KINGS 101 · TV news", "https://www.wusa9.com/article/news/politics/march-on-washington/kings-101-at-this-dc-school-black-history-is-taught-year-round/65-ac9c3914-05d7-4626-9a33-2c51b382f90d"),
+    ("May 4, 2020", "LTL Ep. 4: The Boy Crisis in Our Schools", "Project Forever Free · Shawn Hardnett · Podcast", "https://projectforeverfree.org/ltl-ep-4-the-boy-crisis-in-our-schools-ft-shawn-hardnett/"),
+    ("c. 2019", "“For black and brown boys”", "WUSA9 · Shawn Hardnett and Dr. Rictor Craig as founders · TV news", "https://www.wusa9.com/article/news/local/dc/dc-charter-school-changing-way-students-of-color-are-educated/65-bd2d97c6-6b94-4686-8a8e-ae1a32500b24"),
+    ("c. Aug. 2018", "80 black men greet boys on first day of school in emotional video", "WUSA9 · Dr. Rictor Craig and Shawn Hardnett", "https://www.wusa9.com/article/news/local/dc/80-black-men-greet-boys-on-first-day-of-school-in-emotional-video/65-586742570"),
+    ("Sep. 28, 2017", "With New Middle School for DC Boys, Shawn Hardnett Follows His North Star", "Education Forward DC · Profile", "https://edforwarddc.org/new-middle-school-dc-boys-shawn-hardnett-follows-north-star/"),
+    ("Jan. 20, 2013", "Young students reflect on growing up with Obama as president", "TheGrio · Dr. Craig as principal", "https://thegrio.com/2013/01/20/young-students-reflect-on-growing-up-with-obama-as-president/"),
 ]
 
 
@@ -1581,7 +1622,7 @@ def write_support_files():
     open(os.path.join(OUT, "assets/seal.svg"), "w", encoding="utf-8").write(seal)
     open(os.path.join(OUT, "assets/seal-white.svg"), "w", encoding="utf-8").write(seal.replace('color="#1b1c1b"', 'color="#ffffff"').replace("#c51f36", "#f36070"))
     redirects = [
-        ("/sponsors", "/partners"), ("/join-nabme-2", "/join"), ("/mission-and-values", "/mission"), ("/board-members", "/founders"),
+        ("/sponsors", "/partners"), ("/join-nabme-2", "/join"), ("/mission-and-values", "/mission"), ("/board-members", "/founders"), ("/team", "/staff"),
         ("/nabme-fellowship-program", "/athari"), ("/resumes", "/resume-bank"), ("/give", "/donate"), ("/contact-us", "/contact"),
         ("/nabme-careersw", "/careers"), ("/talent-portal", "/talent"),
         # the rest of the old WordPress site (from its sitemap, Oct 2026)
@@ -1615,7 +1656,7 @@ if __name__ == "__main__":
         shutil.copytree(os.path.join(base, "assets"), os.path.join(OUT, "assets"), dirs_exist_ok=True)
         for f in ("styles.css", "main.js"):
             shutil.copy2(os.path.join(base, f), os.path.join(OUT, f))
-    build_home(); build_mission(); build_founders(); build_bios(); build_join(); build_contact()
+    build_home(); build_mission(); build_founders(); build_bios(); build_staff(); build_join(); build_contact()
     build_careers(); build_talent(); build_resume_bank(); build_employers(); build_jobs(); build_post_job()
     build_donate(); build_media(); build_blog(); build_events(); build_live(); build_partners()
     build_athari(); build_summit(); build_nominate(); build_impact(); build_summit_register(); build_summit_mission(); build_summit_proposals()

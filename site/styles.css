@@ -949,3 +949,9 @@ html.motion-off .strip__set[aria-hidden] { display: none; }
 .job__desc { margin-top: 12px; max-width: 70ch; white-space: pre-line; overflow-wrap: anywhere; }
 .job__deadline, .job__apply { margin-top: 10px; color: var(--muted); overflow-wrap: anywhere; }
 .job__more .btn { margin-top: 14px; }
+
+/* Staff: four across, two on tablets, one on phones */
+.people--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .people--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .people--4 { grid-template-columns: 1fr; } }
+@media (min-width: 1001px) { .people--4 .person .eyebrow { min-height: 5.1em; align-items: flex-start; } .people--4 .person .eyebrow::before { margin-top: .45em; } }
