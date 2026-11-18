@@ -5,6 +5,7 @@
 //   POST _action=capture -> takes the payment, confirms it, then saves the registration
 import { TABLES } from "./_schema.js";
 import { saveRecord, hasRecord } from "./_airtable.js";
+import { subscribe } from "./_mailerlite.js";
 
 const TABLE = "Summit Registrations";
 const AMOUNT = "100.00", CURRENCY = "USD", MARKER = "nabme-summit-2027";
@@ -84,7 +85,7 @@ async function captureAndSave(form) {
 
   const fields = rowFrom(form, cap, order);
   for (let i = 0; i < 3; i++) {
-    if ((await saveRecord(TABLE, TABLES[TABLE], fields).catch(() => ({ ok: false }))).ok) return json({ ok: true });
+    if ((await saveRecord(TABLE, TABLES[TABLE], fields).catch(() => ({ ok: false }))).ok) { await subscribe(TABLE, form); return json({ ok: true }); }
     await new Promise((r) => setTimeout(r, 400 * (i + 1)));
   }
   // Paid but couldn't be recorded: give the money back rather than keep a payment with no registration

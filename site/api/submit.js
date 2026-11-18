@@ -1,8 +1,10 @@
 // Receives every website form and saves it to NABME's Airtable base.
 // Needs two environment variables in Vercel: AIRTABLE_TOKEN and AIRTABLE_BASE_ID.
+// MailerLite (optional): MAILERLITE_API_KEY adds opted-in signups to NABME's email list.
 // Optional email alerts: RESEND_API_KEY, NOTIFY_FROM (a verified sender) and NOTIFY_TO (defaults to info@nabme.org).
 import { TABLES, MAX_FILE_BYTES } from "./_schema.js";
 import { saveRecord } from "./_airtable.js";
+import { subscribe } from "./_mailerlite.js";
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
@@ -38,6 +40,7 @@ export async function POST(request) {
   const saved = await saveRecord(tableName, table, fields);
   if (!saved.ok) return json({ ok: false, error: "We couldn't save this right now." }, 502);
   const recordId = saved.id;
+  await subscribe(tableName, form);   // email list, for the forms where people opted in
 
   // Files (resume, headshot, logo) go straight into the record's attachment column
   for (const [column, f] of files) {
